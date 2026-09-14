@@ -1,0 +1,11 @@
+<div class="tarjeta-pelicula">
+  <img [src]="pelicula.afiche_url" [alt]="pelicula.titulo" />
+
+  <div class="tarjeta-contenido">
+    <h3>{{ pelicula.titulo }}</h3>
+    <hr>
+    <span>⏱️: {{ pelicula.duracion_minutos }} min</span>
+    <hr>
+    <p class="sinopsis">{{ pelicula.sinopsis }}</p>
+  </div>
+</div>

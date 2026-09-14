@@ -1,0 +1,27 @@
+.tarjeta-pelicula{
+    width: 100%;
+    img{
+        width: 100%;
+        aspect-ratio: 4 / 5;
+        border-radius: 12px;
+        transform: skewX(-2deg);
+    }
+    h3,span{
+        color: #f4faff;
+        text-align: center;
+        width: 100%;
+    }
+    p{
+        text-align: justify;
+        color: #6eaee2;
+    }
+    .sinopsis {
+        display: -webkit-box;
+        -webkit-line-clamp: 8;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        line-height: 1.1;
+        margin: 0;
+}
+}

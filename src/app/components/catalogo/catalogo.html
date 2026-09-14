@@ -1,0 +1,10 @@
+<div class="catalogo-supremo">
+  <div class="catalogo-contenedor">
+    <app-tarjeta-pelicula 
+      *ngFor="let p of peliculas"
+      [pelicula]="p"
+      (seleccionar)="onPeliculaSeleccionada($event)">
+    </app-tarjeta-pelicula>
+  </div>
+
+</div>

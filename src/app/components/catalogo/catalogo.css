@@ -1,0 +1,8 @@
+.catalogo-supremo{
+    .catalogo-contenedor{
+        padding: 18px;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+}

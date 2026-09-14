@@ -1,1 +1,34 @@
-/* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css2?family=Knewave&family=Quantico:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
+:root{
+    --fuente-titulo: "Knewave", system-ui;
+    --fuente-sans: "Quantico", sans-serif;
+
+    --color-1: #070461;
+}
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body{
+    background-color: var(--color-1);
+}
+app-tarjeta-pelicula {
+    display: block;
+    width: 19%;
+    margin: 6px 0.5%;
+}
+h1,h2,h3,h4,h5,h6{
+    font-family: var(--fuente-titulo);
+    letter-spacing: 2px;
+    text-align: center;
+    margin: 4px 0;
+}
+p,span{
+    font-family: var(--fuente-sans);
+}
+hr{
+    opacity: 0.3;
+}

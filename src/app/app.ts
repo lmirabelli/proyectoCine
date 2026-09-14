@@ -1,12 +1,25 @@
-import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component } from '@angular/core';
+import { CatalogoComponent } from './components/catalogo/catalogo';
+import { Pelicula } from './models/pelicula';
 
 @Component({
-  imports: [RouterOutlet],
   selector: 'app-root',
-  styleUrl: './app.css',
-  templateUrl: './app.html',
+  standalone: true,
+  imports: [CatalogoComponent],
+  template: `
+    <div class="app-layout">
+      <header class="navbar">
+        <h1>Proyecto Cine - Progra IV</h1>
+      </header>
+      <main class="content">
+        <app-catalogo (seleccionarPelicula)="verDetalle($event)"></app-catalogo>
+      </main>
+    </div>
+  `,
+  styleUrl: "./app.css",
 })
-export class App {
-  protected readonly title = signal('proyectoCinePrograIV');
+export class AppComponent {
+  verDetalle(pelicula: Pelicula): void {
+    console.log('Película seleccionada:', pelicula);
+  }
 }
