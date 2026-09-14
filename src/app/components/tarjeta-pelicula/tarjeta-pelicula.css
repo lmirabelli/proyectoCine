@@ -13,7 +13,7 @@
     }
     p{
         text-align: justify;
-        color: #6eaee2;
+        color: var(--color-2);
     }
     .sinopsis {
         display: -webkit-box;

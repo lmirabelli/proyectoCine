@@ -1,5 +1,13 @@
 <div class="catalogo-supremo">
   <div class="catalogo-contenedor">
+    <h2>Peliculas Destacadas</h2>
+    <app-destacados
+      *ngFor="let p of destacadas"
+      [pelicula]="p"
+      (seleccionar)="onPeliculaSeleccionada($event)">></app-destacados>
+  </div>
+  <div class="catalogo-contenedor">
+    <h2>Cartelera</h2>
     <app-tarjeta-pelicula 
       *ngFor="let p of peliculas"
       [pelicula]="p"

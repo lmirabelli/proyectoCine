@@ -9,7 +9,7 @@ import { Pelicula } from './models/pelicula';
   template: `
     <div class="app-layout">
       <header class="navbar">
-        <h1>Proyecto Cine - Progra IV</h1>
+        <h1>Proyecto Cine 🚬🚬🚬</h1>
       </header>
       <main class="content">
         <app-catalogo (seleccionarPelicula)="verDetalle($event)"></app-catalogo>

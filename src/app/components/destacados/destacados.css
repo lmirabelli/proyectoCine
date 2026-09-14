@@ -1,0 +1,29 @@
+.pelicula-destacada{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    background-color: var(--color-blanco-20);
+    padding: 14px;
+    border-radius: 12px;
+    box-shadow: var(--iluminacion);
+    .afiche{
+        width: 38%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        img{
+            width: 100%;
+        }
+    }
+    .tarjeta-contenido{
+        width: 60%;
+        p{
+            display: -webkit-box;
+            -webkit-line-clamp: 8;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.1;
+        }
+    }
+}

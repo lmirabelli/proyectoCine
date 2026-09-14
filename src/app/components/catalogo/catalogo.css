@@ -1,8 +1,15 @@
 .catalogo-supremo{
     .catalogo-contenedor{
+        h2,h3{
+            color: var(--color-2);
+        }
         padding: 18px;
         display: flex;
         flex-wrap: wrap;
         align-items: center;
+        justify-content: space-around;
+        h3{
+        width: 100%;
+    }
     }
 }

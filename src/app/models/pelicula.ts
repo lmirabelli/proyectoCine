@@ -3,7 +3,8 @@ export interface Pelicula {
     titulo: string;
     sinopsis: string;
     duracion_minutos: number;
+    estreno: number;
+    ventas_totales: number;
     afiche_url?: string;
-    ventas_totales?: number;
     created_at?: string;
 }
