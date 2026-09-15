@@ -6,6 +6,7 @@
     --fuente-destacada: "Knewave", system-ui;
 
     --color-blanco-20: #ffffff33; 
+    --color-blanco: #FFFFF0; 
     --color-1: #070461;
     --color-2: #6eaee2;
 
@@ -19,6 +20,10 @@
 }
 body{
     background-color: var(--color-1);
+}
+app-buscador{
+    display: block;
+    width: 100%;
 }
 app-destacados{
     display: block;

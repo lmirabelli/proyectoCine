@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 import { CatalogoComponent } from './components/catalogo/catalogo';
 import { Pelicula } from './models/pelicula';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CatalogoComponent],
+  imports: [CatalogoComponent, RouterOutlet],
   template: `
     <div class="app-layout">
       <header class="navbar">

@@ -1,18 +1,29 @@
 <div class="catalogo-supremo">
-  <div class="catalogo-contenedor">
+  <app-buscador (buscar)="onBuscar($event)"></app-buscador>
+  @if (!busqueda){
+    <div class="catalogo-contenedor">
     <h2>Peliculas Destacadas</h2>
-    <app-destacados
-      *ngFor="let p of destacadas"
-      [pelicula]="p"
-      (seleccionar)="onPeliculaSeleccionada($event)">></app-destacados>
+    @for (p of destacadas; track p.id) {
+      <app-destacados
+        [pelicula]="p"
+        (click)="detallar(p.id)"></app-destacados>
+    }
+    @empty {
+    <p>No hay películas destacadas para mostrar.</p>
+    }
   </div>
+  }
   <div class="catalogo-contenedor">
     <h2>Cartelera</h2>
-    <app-tarjeta-pelicula 
-      *ngFor="let p of peliculas"
-      [pelicula]="p"
-      (seleccionar)="onPeliculaSeleccionada($event)">
-    </app-tarjeta-pelicula>
+    @for (p of peliculas; track p.id) {
+      <app-tarjeta-pelicula
+        [pelicula]="p"
+        (click)="detallar(p.id)"
+        style="cursor: pointer"></app-tarjeta-pelicula>
+    }
+    @empty {
+    <p>No hay películas en cartelera.</p>
+    }
   </div>
 
 </div>

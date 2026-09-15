@@ -1,0 +1,30 @@
+@if (cargando) {
+    <div class="cargando">Cargando detalles de la película...</div>
+} @else if (pelicula) {
+    <article class="detalle-contenedor">
+    <button routerLink="/" class="btn-volver">← Volver al catálogo</button>
+
+    <div class="detalle-grid">
+        <div class="poster-box">
+        <img [src]="pelicula.afiche_url" [alt]="pelicula.titulo" />
+        </div>
+
+        <div class="info-box">
+        <h1>{{ pelicula.titulo | titlecase }} ({{ pelicula.estreno }})</h1>
+        
+        <div class="metadata">
+            <span>⏱ {{ pelicula.duracion_minutos }} min</span>
+            <span>🎟 Ventas: {{ pelicula.ventas_totales }}</span>
+            <span>⭐ {{ pelicula.puntuacion_total }} ({{ pelicula.puntuacion_cantidad }} votos)</span>
+        </div>
+
+        <p class="sinopsis">{{ pelicula.sinopsis }}</p>
+        </div>
+    </div>
+    </article>
+} @else {
+    <div class="error-box">
+    <p>No se encontró la película solicitada.</p>
+        <button routerLink="/" class="btn-volver">Volver al catálogo</button>
+    </div>
+}

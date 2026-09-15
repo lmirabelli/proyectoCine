@@ -1,1 +1,21 @@
-<p>buscador works!</p>
+<form (ngSubmit)="onBuscarSubmit()" class="buscador-container">
+    <label>Buscador: </label>
+    <input 
+        type="text"
+        name="busqueda"
+        placeholder="Buscar película por título..."
+        [value]="busqueda"
+        (input)="busqueda = $any($event.target).value"
+        class="input-busqueda"
+    />
+    
+    <button type="submit" class="btn-buscar">
+        Buscar
+    </button>
+
+    @if (busqueda) {
+    <button type="button" (click)="limpiarBuscador()" class="btn-limpiar">
+        ✖
+    </button>
+    }
+</form>

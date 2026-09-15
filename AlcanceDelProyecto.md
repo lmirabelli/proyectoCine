@@ -3,9 +3,9 @@
 ## E-Mail 1 y 2
 
 ### Modulo Cliente
-- Catalogo de Peliculas: Muestreo de peliculas con titulo, sinopsis, afiche y duracion.
-- Destacados y Ranking: Seccion principal con las 3 peliculas mas vendidas.
-- Buscador Integrado: Buscador simple de peliculas en la pagina de inicio.
+- Catalogo de Peliculas: Muestreo de peliculas con titulo, sinopsis, afiche y duracion. OK
+- Destacados y Ranking: Seccion principal con las 3 peliculas mas vendidas. OK
+- Buscador Integrado: Buscador simple de peliculas en la pagina de inicio. OK
 - Reseñas y Calificaciones: Sistema de valoracion por estrellas, comentarios breves por pelicula y calculo de puntuacion promedio.
 - Proceso de Compra: Seleccion de formato (2D, 3D, 4D, 5D), idioma (castellano/subtitulada) y generacion de comprobante en PDF con codigo QR unificado.
 - Registro e Identificacion: Creacion de cuenta recopilando email, nombre, apellido, fecha de nacimiento, tipo de sangre, color de ojos y dias de vacaciones al año. Habilitacion de compra en modo invitado (anonimo).
