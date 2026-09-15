@@ -6,6 +6,11 @@
     padding: 14px;
     border-radius: 12px;
     box-shadow: var(--iluminacion);
+    cursor: pointer;
+    transition: scale 0.4s;
+    &:hover{
+        scale: 0.95;
+    }
     .afiche{
         width: 38%;
         display: flex;
@@ -17,13 +22,21 @@
     }
     .tarjeta-contenido{
         width: 60%;
+        h3{
+            color: var(--color-3);
+        }
+        span{
+            color: var(--color-2);
+        }
         p{
+            font-size: 12px;
             display: -webkit-box;
             -webkit-line-clamp: 8;
             -webkit-box-orient: vertical;
             overflow: hidden;
             text-overflow: ellipsis;
             line-height: 1.1;
+            color: var(--color-blanco);
         }
     }
 }

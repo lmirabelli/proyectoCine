@@ -5,12 +5,15 @@
     --fuente-sans: "Quantico", sans-serif;
     --fuente-destacada: "Knewave", system-ui;
 
-    --color-blanco-20: #ffffff33; 
+    --color-blanco-20: #ffffff13; 
     --color-blanco: #FFFFF0; 
-    --color-1: #070461;
-    --color-2: #6eaee2;
+    --color-1: #070C2B;
+    --color-2: #7179AB;
+    --color-3: #80713F;
+    --color-4: #2B2307;
+    --color-5: #2C346B;
 
-    --iluminacion: inset 2px 2px 4px 1px #ffffff45, inset -2px -2px 4px 1px #00000045;
+    --iluminacion: inset 2px 2px 4px 1px #F5C70045, inset -2px -2px 4px 1px #00000045;
 }
 
 *{

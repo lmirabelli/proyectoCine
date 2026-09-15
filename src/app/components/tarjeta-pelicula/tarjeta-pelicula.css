@@ -1,5 +1,10 @@
 .tarjeta-pelicula{
     width: 100%;
+    cursor: pointer;
+    transition: scale 0.4s;
+    &:hover{
+        scale: 0.95;
+    }
     img{
         width: 100%;
         aspect-ratio: 4 / 5;

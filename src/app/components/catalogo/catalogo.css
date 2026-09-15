@@ -1,6 +1,6 @@
 .catalogo-supremo{
     .catalogo-contenedor{
-        h2,h3{
+        h1,h2,h3{
             color: var(--color-2);
         }
         padding: 18px;
