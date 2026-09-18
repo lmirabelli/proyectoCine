@@ -1,0 +1,37 @@
+<section class="compra-contenedor">
+    <div class="grupo-opciones">
+        <label>Formatos</label>
+        <div class="botones-selector">
+            @for (fmt of formatos; track fmt) {
+                <button 
+                    type="button" 
+                    class="btn-opcion"
+                    [class.seleccionado]="fmt === formatoSeleccionado()"
+                    (click)="formatoSeleccionado.set(fmt)">
+                    {{ fmt }}
+                </button>
+            }
+        </div>
+    </div>
+    <div class="grupo-opciones">
+        <label>Idioma</label>
+        <div class="botones-selector">
+            @for (lang of idiomas; track lang) {
+                <button 
+                    type="button" 
+                    class="btn-opcion"
+                    [class.seleccionado]="lang === idiomaSeleccionado()"
+                    (click)="idiomaSeleccionado.set(lang)">
+                    {{ lang }}
+                </button>
+            }
+        </div>
+    </div>
+    <button 
+        type="button" 
+        class="btn-confirmar" 
+        [disabled]="procesando()"
+        (click)="finalizarCompra()">
+        {{ procesando() ? 'Generando Comprobante...' : 'Pagar y Descargar Ticket PDF' }}
+    </button>
+</section>
