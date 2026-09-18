@@ -1,12 +1,11 @@
 <div class="catalogo-supremo">
-    <app-buscador (buscar)="onBuscar($event)"></app-buscador>
-
-    @if (cargando()) {
-        <p>Cargando catálogo...</p>
-    } @else {
-        @if (!busqueda()) {
-            <div class="catalogo-contenedor">
-              <h1>CINE - PUCHITO PUCHITO 🚬 🚬</h1>
+  
+  @if (cargando()) {
+    <p>Cargando catálogo...</p>
+  } @else {
+    @if (!busqueda()) {
+      <div class="catalogo-contenedor">
+        <app-buscador (buscar)="onBuscar($event)"></app-buscador>
                 <h2>Películas Destacadas</h2>
                 @for (p of destacadas(); track p.id) {
                         <app-destacados [pelicula]="p" (click)="irAlDetalle(p.id)"></app-destacados>

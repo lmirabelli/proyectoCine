@@ -1,11 +1,11 @@
-.cargando{
+.cargando {
     font-size: 40px;
     color: var(--color-4);
     font-family: var(--fuente-destacada);
 }
 
-.detalle-contenedor{
-    .btn-volver{
+.detalle-contenedor {
+    .btn-volver {
         margin: 16px;
         background: var(--color-3);
         padding: 12px;
@@ -18,23 +18,29 @@
         box-shadow: var(--iluminacion);
         transition: transform 0.4s;
         cursor: pointer;
-        &:hover{
+
+        &:hover {
             transform: scaleY(0.8) translateX(12px);
         }
     }
-    .pelicula-container{
+
+    .pelicula-container {
         display: flex;
         justify-content: space-between;
         margin: 32px 6px;
-        .poster-container{
+
+        .poster-container {
             width: 25%;
-            img{
+
+            img {
                 width: 100%;
             }
         }
-        .info-container{
+
+        .info-container {
             width: 73%;
-            h1{
+
+            h1 {
                 color: var(--color-blanco);
                 text-transform: uppercase;
                 font-size: 36px;
@@ -44,18 +50,138 @@
                 box-shadow: var(--iluminacion);
                 background-color: var(--color-blanco-20);
             }
-            .metadata{
+
+            .metadata {
                 display: flex;
                 justify-content: center;
                 margin: 8px 0;
-                span{
+
+                span {
                     color: var(--color-3);
                     margin: 0 12px;
                 }
             }
-            .sinopsis{
+
+            .sinopsis {
                 color: var(--color-blanco);
                 line-height: 1.8;
+            }
+        }
+    }
+
+    .resenas-container {
+        width: 100%;
+        padding: 1rem;
+
+        h2 {
+            color: var(--color-2);
+        }
+
+        h3 {
+            color: var(--color-blanco);
+        }
+
+        form {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+
+            label,
+            textarea,
+            small {
+                font-family: var(--fuente-sans);
+            }
+
+            label,
+            small {
+                display: block;
+                color: var(--color-blanco);
+                text-align: center;
+                width: 100%;
+            }
+
+            textarea {
+                background-color: var(--color-blanco-20);
+                padding: 16px;
+                border-radius: 16px;
+                border: 0;
+                box-shadow: inset 0 0 8px 1px var(--color-blanco-20);
+                color: var(--color-3);
+                width: 45%;
+            }
+
+            .campo-comentario {
+                display: flex;
+                justify-content: center;
+                flex-wrap: wrap;
+                width: 100%;
+                margin-bottom: 12px;
+            }
+        }
+
+        .campo-estrellas {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            width: 100%;
+
+            .estrellas-contenedor {
+                display: flex;
+                justify-content: center;
+                gap: 0.25rem;
+
+                .estrella-btn {
+                    background: transparent;
+                    border: none;
+                    font-size: 1.8rem;
+                    color: #ccc;
+                    cursor: pointer;
+                    padding: 0;
+                    transition: color 0.2s ease, transform 0.1s ease;
+
+                    &:hover {
+                        transform: scale(1.15);
+                    }
+                }
+
+                .estrella-btn.activa {
+                    color: #ffd700;
+                }
+            }
+        }
+
+        .lista-resenas-container {
+            width: 100%;
+            margin-top: 64px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+
+            .tarjeta-resena {
+                width: 23%;
+                background: var(--color-3);
+                padding: 12px;
+                border-radius: 12px;
+                margin: 4px 0;
+                overflow: hidden;
+
+                .encabezado-resena {
+                    width: 100%;
+
+                    span {
+                        width: 100%;
+                        display: block;
+                    }
+
+                    .estrellas {
+                        font-size: 10px;
+                    }
+
+                    .fecha {
+                        font-size: 12px;
+                    }
+                }
             }
         }
     }

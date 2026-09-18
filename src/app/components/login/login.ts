@@ -1,0 +1,97 @@
+import { Component, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { SupabaseService } from '../../services/supabase';
+
+@Component({
+    selector: 'app-login',
+    standalone: true,
+    imports: [CommonModule, FormsModule],
+    templateUrl: './login.html',
+    styleUrl: './login.css'
+})
+export class LoginComponent {
+    private supabase = inject(SupabaseService);
+    private router = inject(Router);
+
+    loginEmail = signal<string>('');
+    loginPassword = signal<string>('');
+
+    regNombre = signal<string>('');
+    regApellido = signal<string>('');
+    regUsuario = signal<string>('');
+    regEmail = signal<string>('');
+    regPassword = signal<string>('');
+
+    cargando = signal<boolean>(false);
+    errorMensaje = signal<string | null>(null);
+    exitoMensaje = signal<string | null>(null);
+
+    async onLogin(): Promise<void> {
+        if (!this.loginEmail() || !this.loginPassword()) {
+            this.errorMensaje.set('Completá email y contraseña para ingresar.');
+            return;
+        }
+
+        this.cargando.set(true);
+        this.errorMensaje.set(null);
+        this.exitoMensaje.set(null);
+
+        try {
+            const usuario = await this.supabase.iniciarSesion(
+                this.loginEmail(),
+                this.loginPassword()
+            );
+
+            if (usuario) {
+                this.router.navigate(['/']);
+            }
+        } catch (error) {
+            console.error('Error al iniciar sesión:', error);
+            this.errorMensaje.set('Credenciales inválidas. Verificá los datos ingresados.');
+        } finally {
+            this.cargando.set(false);
+        }
+    }
+
+    async onRegister(): Promise<void> {
+        if (
+            !this.regNombre() ||
+            !this.regApellido() ||
+            !this.regUsuario() ||
+            !this.regEmail() ||
+            !this.regPassword()
+        ) {
+            this.errorMensaje.set('Por favor, completá todos los campos para registrarte.');
+            return;
+        }
+
+        this.cargando.set(true);
+        this.errorMensaje.set(null);
+        this.exitoMensaje.set(null);
+
+        try {
+            await this.supabase.registrarUsuario({
+                nombre: this.regNombre(),
+                apellido: this.regApellido(),
+                usuario: this.regUsuario(),
+                email: this.regEmail(),
+                password: this.regPassword()
+            });
+
+            this.exitoMensaje.set('¡Registro exitoso! Ya podés iniciar sesión.');
+
+            this.regNombre.set('');
+            this.regApellido.set('');
+            this.regUsuario.set('');
+            this.regEmail.set('');
+            this.regPassword.set('');
+        } catch (error) {
+            console.error('Error al registrar usuario:', error);
+            this.errorMensaje.set('No se pudo completar el registro. Intentalo de nuevo.');
+        } finally {
+            this.cargando.set(false);
+        }
+    }
+}

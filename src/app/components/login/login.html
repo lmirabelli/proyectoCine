@@ -1,0 +1,76 @@
+<div class="full-container">
+    
+    <div class="login-container">
+        <div class="login-card">
+            <h2>Iniciar Sesión</h2>
+
+            <form (submit)="$event.preventDefault(); onLogin()" class="login-form">
+                <div class="campo">
+                    <label for="login-email">Correo Electrónico</label>
+                    <input type="email" id="login-email" placeholder="ejemplo@correo.com" [ngModel]="loginEmail()"
+                        (ngModelChange)="loginEmail.set($event)" name="loginEmail" required />
+                </div>
+
+                <div class="campo">
+                    <label for="login-password">Contraseña</label>
+                    <input type="password" id="login-password" placeholder="••••••••" [ngModel]="loginPassword()"
+                        (ngModelChange)="loginPassword.set($event)" name="loginPassword" required />
+                </div>
+
+                <button type="submit" [disabled]="cargando()" class="btn-submit">
+                    {{ cargando() ? 'Cargando...' : 'Ingresar' }}
+                </button>
+            </form>
+        </div>
+        <div class="login-card">
+            <h2>Registrarse</h2>
+
+            <form (submit)="$event.preventDefault(); onRegister()" class="login-form">
+                <div class="campo">
+                    <label for="reg-nombre">Nombre</label>
+                    <input type="text" id="reg-nombre" placeholder="Esteban" [ngModel]="regNombre()"
+                        (ngModelChange)="regNombre.set($event)" name="regNombre" required />
+                </div>
+
+                <div class="campo">
+                    <label for="reg-apellido">Apellido</label>
+                    <input type="text" id="reg-apellido" placeholder="Quito" [ngModel]="regApellido()"
+                        (ngModelChange)="regApellido.set($event)" name="regApellido" required />
+                </div>
+
+                <div class="campo">
+                    <label for="reg-usuario">Usuario</label>
+                    <input type="text" id="reg-usuario" placeholder="EstebanQuito" [ngModel]="regUsuario()"
+                        (ngModelChange)="regUsuario.set($event)" name="regUsuario" required />
+                </div>
+
+                <div class="campo">
+                    <label for="reg-email">Correo Electrónico</label>
+                    <input type="email" id="reg-email" placeholder="ejemplo@correo.com" [ngModel]="regEmail()"
+                        (ngModelChange)="regEmail.set($event)" name="regEmail" required />
+                </div>
+
+                <div class="campo">
+                    <label for="reg-password">Contraseña</label>
+                    <input type="password" id="reg-password" placeholder="••••••••" [ngModel]="regPassword()"
+                        (ngModelChange)="regPassword.set($event)" name="regPassword" required />
+                </div>
+
+                <button type="submit" [disabled]="cargando()" class="btn-submit">
+                    {{ cargando() ? 'Cargando...' : 'Registrarse' }}
+                </button>
+            </form>
+        </div>
+    </div>
+    @if (errorMensaje()) {
+    <div class="error-container">
+        {{ errorMensaje() }}
+    </div>
+    }
+
+    @if (exitoMensaje()) {
+    <div class="exito-container">
+        {{ exitoMensaje() }}
+    </div>
+    }
+</div>

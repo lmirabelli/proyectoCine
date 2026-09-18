@@ -1,32 +1,79 @@
 @if (cargando()) {
-    <div class="cargando">
-        <p>Cargando detalles de la película...</p>
-    </div>
+<div class="cargando">
+    <p>Cargando detalles de la película...</p>
+</div>
 } @else if (pelicula(); as p) {
-    <article class="detalle-contenedor">
-        <button routerLink="/" class="btn-volver">← Volver al catálogo</button>
+<article class="detalle-contenedor">
+    <button routerLink="/" class="btn-volver">← Volver al catálogo</button>
 
-        <div class="pelicula-container">
-            <div class="poster-container">
-                <img [src]="p.afiche_url" [alt]="p.titulo" />
-            </div>
-
-            <div class="info-container">
-                <h1>{{ p.titulo | titlecase }}</h1>
-
-                <div class="metadata">
-                    <span>📆 {{ p.estreno }}</span>
-                    <span>⏱ {{ p.duracion_minutos }} min</span>
-                    <span>⭐ {{ p.puntuacion_cantidad === 0 ? "-" : (p.puntuacion_total / p.puntuacion_cantidad).toFixed(2) }} ({{ p.puntuacion_cantidad }} votos)</span>
-                </div>
-
-                <p class="sinopsis">{{ p.sinopsis }}</p>
-            </div>
+    <div class="pelicula-container">
+        <div class="poster-container">
+            <img [src]="p.afiche_url" [alt]="p.titulo" />
         </div>
-    </article>
-} @else {
-    <div class="error-container">
-        <p>No se encontró la película solicitada.</p>
-        <button routerLink="/" class="btn-volver">Volver al catálogo</button>
+
+        <div class="info-container">
+            <h1>{{ p.titulo }}</h1>
+
+            <div class="metadata">
+                <span>📆 {{ p.estreno }}</span>
+                <span>⏱ {{ p.duracion_minutos }} min</span>
+                <span>⭐ {{ p.puntuacion_cantidad === 0 ? "-" : (p.puntuacion_total / p.puntuacion_cantidad).toFixed(2)
+                    }} ({{ p.puntuacion_cantidad }} votos)</span>
+            </div>
+
+            <p class="sinopsis">{{ p.sinopsis }}</p>
+        </div>
     </div>
+
+    <section class="resenas-container">
+        <h2>Calificaciones y Reseñas</h2>
+
+        <form (submit)="$event.preventDefault(); enviarResena()" class="form-resena">
+            <h3>Dejá tu opinión</h3>
+            <div class="campo-estrellas">
+                <label>Puntuación:</label>
+                <div class="estrellas-contenedor">
+                    @for (valor of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]; track valor) {
+                    <button type="button" class="estrella-btn" [class.activa]="valor <= estrellasSeleccionadas()"
+                        (click)="estrellasSeleccionadas.set(valor)">
+                        ★
+                    </button>
+                    }
+                </div>
+            </div>
+
+            <div class="campo-comentario">
+                <label for="comentario">Comentario</label>
+                <textarea id="comentario" rows="3" maxlength="256"
+                    placeholder="Escribí una breve reseña sobre la película..." [ngModel]="comentarioTexto()"
+                    (ngModelChange)="comentarioTexto.set($event)" name="comentario" required></textarea>
+                <small>{{ comentarioTexto().length }}/256 caracteres</small>
+            </div>
+
+            <button type="submit" [disabled]="enviando() || !comentarioTexto().trim()" class="btn-enviar">
+                {{ enviando() ? 'Guardando...' : 'Publicar Reseña' }}
+            </button>
+        </form>
+
+        <div class="lista-resenas-container">
+            <h3>Comentarios de los usuarios</h3>
+            @for (r of resenas(); track r.id) {
+            <div class="tarjeta-resena">
+                <div class="encabezado-resena">
+                    <span class="estrellas">@for (i of [].constructor(r.estrellas); track $index) {⭐}</span>
+                    <span class="fecha">{{ r.created_at | date:'dd/MM/yyyy' }} - {{ r.perfiles?.usuario ||
+                        r.perfiles?.email || 'Usuario anónimo' }}</span>
+                </div>
+                <p class="comentario">{{ r.comentario }}</p>
+            </div>
+            } @empty {
+            }
+        </div>
+    </section>
+</article>
+} @else {
+<div class="error-container">
+    <p>No se encontró la película solicitada.</p>
+    <button routerLink="/" class="btn-volver">Volver al catálogo</button>
+</div>
 }
