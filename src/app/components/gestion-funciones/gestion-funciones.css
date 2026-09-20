@@ -1,0 +1,70 @@
+.gestion-container{
+    .formulario-card,.tabla-card{
+        margin: 18px auto;
+        background-color: var(--color-blanco-20);
+        padding: 16px;
+        border-radius: 16px;
+        border: 1px solid var(--color-blanco-20);
+    }
+    .formulario-card{
+        width: 80%;
+        h2{
+            margin-bottom: 24px;
+        }
+        .campo{
+            margin: 4px 0;
+            display: flex;
+            justify-content: center;
+            label{
+                width: 25%;
+                text-align: center;
+                color: var(--color-2);
+                text-transform: uppercase;
+                font-family: var(--fuente-sans);
+                text-wrap: nowrap;
+                text-overflow: ellipsis;
+                overflow: hidden;
+            }
+            select,input{
+                width: 40%;
+                font-family: var(--fuente-sans);
+                text-transform: uppercase;
+            }
+        }
+        .resumen-calculo{
+            margin: 12px 0;
+            text-align: center;
+            color: var(--color-3);
+        }
+        .banner-exito,.banner-error{
+            color: var(--color-blanco);
+            padding: 6px;
+            margin: 12px 0;
+            font-family: var(--fuente-sans);
+        }
+        .banner-exito{
+            background-color: var(--color-verde);
+        }
+        .banner-error{
+            background-color: var(--color-rojo);
+        }
+    }
+    .tabla-card{
+        width: 98%;
+        table{
+            width: 100%;
+            thead,tbody{
+                tr{
+                    th,td{
+                        background-color: var(--color-5);
+                        padding: 2px 0;
+                        text-align: center;
+                        font-family: var(--fuente-sans);
+                        color: var(--color-blanco);
+                        border-radius: 4px;
+                    }
+                }
+            }
+        }
+    }
+}

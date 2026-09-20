@@ -7,6 +7,8 @@
 
     --color-blanco-20: #ffffff13; 
     --color-blanco: #FFFFF0; 
+    --color-verde: #18b554;
+    --color-rojo: #b51818;
     --color-1: #070C2B;
     --color-2: #7179AB;
     --color-3: #80713F;
@@ -44,6 +46,7 @@ h1,h2,h3,h4,h5,h6{
     letter-spacing: 2px;
     text-align: center;
     margin: 4px 0;
+    color: var(--color-blanco);
 }
 p,span{
     font-family: var(--fuente-sans);

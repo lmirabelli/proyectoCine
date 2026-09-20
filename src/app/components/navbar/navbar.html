@@ -1,15 +1,21 @@
 <header class="navbar-header">
     <div class="navbar-container">
         <a routerLink="/" class="brand-logo">
-            <span>CINE - PUCHITO PUCHITO</span> 🚬 🚬
+            <img src="/logo.png" alt="Logo" />
+            <span>Cine - Puchito Puchito</span>
         </a>
 
         <nav class="navbar-actions">
             @if (usuario(); as user) {
-            <span class="user-welcome">Hola, {{ user.usuario || user.nombre || user.email }}</span>
-            <button (click)="cerrarSesion()" class="btn-logout">Cerrar Sesión</button>
+                <span class="user-welcome">Hola, {{ user.usuario }}</span>
+                
+                @if (esAdmin()) {
+                    <button (click)="irAlPanelAdmin()" class="btn-login">Panel</button>
+                }
+
+                <button (click)="cerrarSesion()" class="btn-logout">Cerrar Sesión</button>
             } @else {
-            <button (click)="irAlLogin()" class="btn-login">Iniciar Sesión</button>
+                <button (click)="irAlLogin()" class="btn-login">Iniciar Sesión</button>
             }
         </nav>
     </div>

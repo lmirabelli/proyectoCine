@@ -14,12 +14,19 @@
 
     .brand-logo {
         font-size: 1.5rem;
-        font-weight: bold;
         color: #fff;
         text-decoration: none;
         display: flex;
         align-items: center;
         gap: 0.5rem;
+        span{
+            font-family: var(--fuente-destacada);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        img{
+            height: 36px;
+        }
     }
 
     .navbar-actions {

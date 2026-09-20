@@ -1,5 +1,4 @@
 <div class="full-container">
-    
     <div class="login-container">
         <div class="login-card">
             <h2>Iniciar Sesión</h2>
@@ -21,7 +20,15 @@
                     {{ cargando() ? 'Cargando...' : 'Ingresar' }}
                 </button>
             </form>
+
+            <div class="invitado-container">
+                <p>¿Querés comprar sin registrarte?</p>
+                <button type="button" (click)="continuarComoInvitado()" class="btn-invitado">
+                    Continuar como invitado
+                </button>
+            </div>
         </div>
+
         <div class="login-card">
             <h2>Registrarse</h2>
 
@@ -56,12 +63,46 @@
                         (ngModelChange)="regPassword.set($event)" name="regPassword" required />
                 </div>
 
+                <div class="campo">
+                    <label for="reg-fecha">Fecha de Nacimiento</label>
+                    <input type="date" id="reg-fecha" [ngModel]="regFechaNacimiento()"
+                        (ngModelChange)="regFechaNacimiento.set($event)" name="regFechaNacimiento" required />
+                </div>
+
+                <div class="campo">
+                    <label for="reg-sangre">Tipo de Sangre</label>
+                    <select id="reg-sangre" [ngModel]="regTipoSangre()" (ngModelChange)="regTipoSangre.set($event)"
+                        name="regTipoSangre" required>
+                        <option value="A+">A+</option>
+                        <option value="A-">A-</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B-</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB-</option>
+                        <option value="O+">O+</option>
+                        <option value="O-">O-</option>
+                    </select>
+                </div>
+
+                <div class="campo">
+                    <label for="reg-ojos">Color de Ojos</label>
+                    <input type="text" id="reg-ojos" placeholder="Marrón" [ngModel]="regColorOjos()"
+                        (ngModelChange)="regColorOjos.set($event)" name="regColorOjos" required />
+                </div>
+
+                <div class="campo">
+                    <label for="reg-vacaciones">Días de Vacaciones/Año</label>
+                    <input type="number" id="reg-vacaciones" min="0" max="365" [ngModel]="regDiasVacaciones()"
+                        (ngModelChange)="regDiasVacaciones.set(+$event)" name="regDiasVacaciones" required />
+                </div>
+
                 <button type="submit" [disabled]="cargando()" class="btn-submit">
                     {{ cargando() ? 'Cargando...' : 'Registrarse' }}
                 </button>
             </form>
         </div>
     </div>
+
     @if (errorMensaje()) {
     <div class="error-container">
         {{ errorMensaje() }}

@@ -1,0 +1,121 @@
+<div class="gestion-container">
+    @if (cargando()) {
+    <div class="alerta-cargando">Verificando credenciales de administrador...</div>
+    } @else if (!esAdmin()) {
+    <div class="alerta-no-autorizado">
+        <h2>Acceso Restringido</h2>
+        <p>Se requieren privilegios de <strong>administrador</strong> para acceder a este panel.</p>
+        <button routerLink="/" class="btn-volver">Volver al Inicio</button>
+    </div>
+    } @else {
+    <h1>Gestión de Funciones</h1>
+
+    <section class="formulario-card">
+        <h2>Programar Función</h2>
+
+        <form (submit)="$event.preventDefault(); crearFuncion()" class="grid-form">
+            <div class="campo">
+                <label for="pelicula">Película</label>
+                <select id="pelicula" [ngModel]="peliculaSeleccionadaId()"
+                    (ngModelChange)="peliculaSeleccionadaId.set($event)" name="pelicula" required>
+                    <option value="" disabled selected>Seleccioná una película</option>
+                    @for (p of peliculas(); track p.id) {
+                    <option [value]="p.id">{{ p.titulo }} ({{ p.duracion_minutos }} min)</option>
+                    }
+                </select>
+            </div>
+
+            <div class="campo">
+                <label for="sala">Sala</label>
+                <select id="sala" [ngModel]="salaSeleccionadaId()" (ngModelChange)="salaSeleccionadaId.set($event)"
+                    name="sala" required>
+                    <option value="" disabled selected>Seleccioná una sala</option>
+                    @for (s of salas(); track s.id) {
+                    <option [value]="s.id">{{ s.nombre }}</option>
+                    }
+                </select>
+            </div>
+
+            <div class="campo">
+                <label for="formato">Formato (definido por la sala)</label>
+                <input type="text" id="formato" [value]="formatoSeleccionado()" readonly name="formato"
+                    placeholder="Seleccioná una sala" />
+            </div>
+
+            <div class="campo">
+                <label for="precio">Precio Entrada</label>
+                <input type="text" id="precio" [value]="precioInput() ? ('$' + precioInput()) : ''" readonly
+                    name="precio" placeholder="$ 0" />
+            </div>
+
+            <div class="campo">
+                <label for="idioma">Idioma</label>
+                <select id="idioma" [ngModel]="idiomaSeleccionado()" (ngModelChange)="idiomaSeleccionado.set($event)"
+                    name="idioma">
+                    @for (i of idiomasDisponibles; track i) {
+                    <option [value]="i">{{ i }}</option>
+                    }
+                </select>
+            </div>
+
+            <div class="campo">
+                <label for="inicio">Inicio de la Función</label>
+                <input type="datetime-local" id="inicio" [ngModel]="fechaInicioInput()"
+                    (ngModelChange)="fechaInicioInput.set($event)" name="inicio" required />
+            </div>
+
+            @if (fechaFinPelicula(); as fin) {
+            <div class="resumen-calculo">
+                <p>Fin de proyección: <strong>{{ fin | date:'dd/MM/yyyy HH:mm' }}</strong></p>
+                <p>Próxima función habilitada en esta sala a partir de: <strong>{{ (fin.getTime() + 1800000) |
+                        date:'HH:mm' }} hs</strong> (30 min limpieza)</p>
+            </div>
+            }
+
+            <button type="submit" [disabled]="guardando()" class="btn-guardar">
+                {{ guardando() ? 'Validando y Guardando...' : 'Programar Función' }}
+            </button>
+        </form>
+
+        @if (mensajeError()) {
+        <div class="banner-error">{{ mensajeError() }}</div>
+        }
+
+        @if (mensajeExito()) {
+        <div class="banner-exito">{{ mensajeExito() }}</div>
+        }
+    </section>
+
+    <section class="tabla-card">
+        <h2>Cartelera Programada</h2>
+        <table class="tabla-funciones">
+            <thead>
+                <tr>
+                    <th>Película</th>
+                    <th>Sala</th>
+                    <th>Formato / Idioma</th>
+                    <th>Precio</th>
+                    <th>Inicio</th>
+                    <th>Fin</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (f of funciones(); track f.id) {
+                <tr>
+                    <td>{{ f.peliculas?.titulo }}</td>
+                    <td><span class="badge-sala">{{ f.salas?.nombre }}</span></td>
+                    <td>{{ f.formato }} ({{ f.idioma }})</td>
+                    <td>${{ f.precio }}</td>
+                    <td>{{ f.inicio | date:'dd/MM HH:mm' }} hs</td>
+                    <td>{{ f.fin | date:'HH:mm' }} hs</td>
+                </tr>
+                } @empty {
+                <tr>
+                    <td colspan="6" class="sin-datos">No hay funciones registradas aún.</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </section>
+    }
+</div>

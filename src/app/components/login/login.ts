@@ -23,6 +23,10 @@ export class LoginComponent {
     regUsuario = signal<string>('');
     regEmail = signal<string>('');
     regPassword = signal<string>('');
+    regFechaNacimiento = signal<string>('');
+    regTipoSangre = signal<string>('A+');
+    regColorOjos = signal<string>('');
+    regDiasVacaciones = signal<number>(14);
 
     cargando = signal<boolean>(false);
     errorMensaje = signal<string | null>(null);
@@ -61,7 +65,11 @@ export class LoginComponent {
             !this.regApellido() ||
             !this.regUsuario() ||
             !this.regEmail() ||
-            !this.regPassword()
+            !this.regPassword() ||
+            !this.regFechaNacimiento() ||
+            !this.regTipoSangre() ||
+            !this.regColorOjos() ||
+            this.regDiasVacaciones() === null
         ) {
             this.errorMensaje.set('Por favor, completá todos los campos para registrarte.');
             return;
@@ -77,7 +85,11 @@ export class LoginComponent {
                 apellido: this.regApellido(),
                 usuario: this.regUsuario(),
                 email: this.regEmail(),
-                password: this.regPassword()
+                password: this.regPassword(),
+                fecha_nacimiento: this.regFechaNacimiento(),
+                tipo_sangre: this.regTipoSangre(),
+                color_ojos: this.regColorOjos(),
+                dias_vacaciones: this.regDiasVacaciones()
             });
 
             this.exitoMensaje.set('¡Registro exitoso! Ya podés iniciar sesión.');
@@ -87,11 +99,20 @@ export class LoginComponent {
             this.regUsuario.set('');
             this.regEmail.set('');
             this.regPassword.set('');
+            this.regFechaNacimiento.set('');
+            this.regTipoSangre.set('A+');
+            this.regColorOjos.set('');
+            this.regDiasVacaciones.set(14);
         } catch (error) {
             console.error('Error al registrar usuario:', error);
             this.errorMensaje.set('No se pudo completar el registro. Intentalo de nuevo.');
         } finally {
             this.cargando.set(false);
         }
+    }
+
+    continuarComoInvitado(): void {
+        this.supabase.usuarioActual.set(null);
+        this.router.navigate(['/']);
     }
 }

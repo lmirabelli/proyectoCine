@@ -15,19 +15,24 @@
             h2 {
                 color: var(--color-3);
             }
-
-            .campo {
+            .invitado-container{
+                margin-top: 24px;
+            }
+            .campo{
+                margin: 2px 0;
+            }
+            .campo, .invitado-container {
                 display: flex;
                 justify-content: space-around;
-                margin: 2px 0;
-
+                align-items: center;
+                p{
+                    color: var(--color-blanco);
+                }
                 label {
                     color: var(--color-blanco);
                     font-family: var(--fuente-sans);
                     width: 40%
-                }
-
-                ;
+                };
 
                 input {
                     background-color: var(--color-blanco-20);
@@ -39,7 +44,7 @@
                 }
             }
 
-            .btn-submit {
+            .btn-submit, .btn-invitado {
                 padding: 0.5rem 1.2rem;
                 border-radius: 6px;
                 border: none;
