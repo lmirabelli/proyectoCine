@@ -1,0 +1,79 @@
+<div class="candybar-container">
+    <h2>Candy Bar</h2>
+
+    @if (mensajeExito()) {
+    <div class="alerta-exito">
+        {{ mensajeExito() }}
+    </div>
+    }
+
+    <div class="categorias-bar">
+        @for (cat of categoriasDisponibles(); track cat) {
+        <button type="button" [class.activo]="categoriaSeleccionada() === cat" (click)="seleccionarCategoria(cat)">
+            {{ cat }}
+        </button>
+        }
+    </div>
+
+    <div class="candybar-layout">
+        <section class="productos-seccion">
+            @if (cargando()) {
+            <p>Cargando comestibles y bebidas...</p>
+            } @else {
+            <div class="grilla-productos">
+                @for (prod of productosFiltrados(); track prod.id) {
+                <div class="tarjeta-producto">
+                    <div class="info-producto">
+                        <h3>{{ prod.producto }}</h3>
+                        @if (prod.marca) { <p class="marca">{{ prod.marca }}</p> }
+                        @if (prod.tamano) { <span class="tamano">{{ prod.tamano }}</span> }
+                        <p class="precio">${{ prod.precio }}</p>
+                    </div>
+                    <button class="btn-agregar" (click)="agregarAlCarrito(prod)">
+                        + Agregar
+                    </button>
+                </div>
+                } @empty {
+                <p>No hay productos disponibles en esta categoría.</p>
+                }
+            </div>
+            }
+        </section>
+
+        <aside class="carrito-seccion">
+            <h3>Tu Pedido</h3>
+
+            @if (carrito().length === 0) {
+            <p class="carrito-vacio">El carrito está vacío.</p>
+            } @else {
+            <div class="lista-carrito">
+                @for (item of carrito(); track item.producto.id) {
+                <div class="item-carrito">
+                    <div class="item-detalles">
+                        <strong>{{ item.producto.producto }}</strong>
+                        <span>${{ item.producto.precio }} c/u</span>
+                    </div>
+                    <div class="controles-cantidad">
+                        <button type="button" (click)="modificarCantidad(item.producto.id, -1)">-</button>
+                        <span>{{ item.cantidad }}</span>
+                        <button type="button" (click)="modificarCantidad(item.producto.id, 1)">+</button>
+                    </div>
+                </div>
+                }
+            </div>
+
+            <div class="resumen-total">
+                <span>Total:</span>
+                <strong>${{ totalCarrito() }}</strong>
+            </div>
+
+            <button class="btn-confirmar" [disabled]="procesando()" (click)="confirmarVenta()">
+                {{ procesando() ? 'Procesando...' : 'Finalizar Compra' }}
+            </button>
+            <button type="button" class="btn-vaciar" (click)="vaciarCarrito()">
+                Vaciar Carrito
+            </button>
+            }
+        </aside>
+    </div>
+</div>

@@ -5,7 +5,6 @@
     box-sizing: border-box;
 
     .navbar-container {
-        max-width: 1200px;
         margin: 0 auto;
         display: flex;
         justify-content: space-between;
@@ -13,24 +12,106 @@
     }
 
     .brand-logo {
-        font-size: 1.5rem;
+        width: 40%;
+        font-size: 24px;
         color: #fff;
         text-decoration: none;
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        span{
+
+        span {
             font-family: var(--fuente-destacada);
             text-transform: uppercase;
             letter-spacing: 2px;
         }
-        img{
+
+        img {
             height: 36px;
         }
+    }
+    .navbar-extras{
+        width: 30%;
     }
 
     .navbar-actions {
         display: flex;
+        width: 30%;
+        a.navbar-header {
+            width: 100%;
+            background-color: var(--color-1);
+            padding: 16px 32px;
+            box-sizing: border-box;
+
+            .navbar-container {
+                margin: 0 auto;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .brand-logo {
+                font-size: 24px;
+                color: var(--color-blanco);
+                text-decoration: none;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+
+                span {
+                    font-family: var(--fuente-destacada);
+                    text-transform: uppercase;
+                    letter-spacing: 2px;
+                }
+
+                img {
+                    height: 36px;
+                }
+            }
+
+            .navbar-actions {
+                display: flex;
+                align-items: center;
+                gap: 16px;
+
+                .btn-login,
+                .btn-logout {
+                    padding: 8px 20px;
+                    border-radius: 6px;
+                    border: none;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: background-color 0.2s ease;
+                }
+
+                .btn-login {
+                    background-color: var(--color-3);
+                    color: var(--color-blanco);
+                    font-family: var(--fuente-sans);
+
+                    &:hover {
+                        background-color: var(--color-4);
+                    }
+                }
+
+                .btn-logout {
+                    background-color: var(--color-4);
+                    color: var(--color-blanco);
+                    font-family: var(--fuente-sans);
+
+                    &:hover {
+                        background-color: var(--color-5);
+                    }
+                }
+
+                .user-welcome {
+                    color: var(--color-2);
+                    font-size: 15px;
+                    font-family: var(--fuente-sans);
+                }
+            }
+        }
+
         align-items: center;
         gap: 1rem;
     }

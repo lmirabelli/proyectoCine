@@ -4,18 +4,22 @@
             <img src="/logo.png" alt="Logo" />
             <span>Cine - Puchito Puchito</span>
         </a>
-
+        <div class="navbar-extras">
+            @if (!esRutaCandy()) {
+            <button (click)="irAlCandy()" class="btn-candy">Candy</button>
+            }
+        </div>
         <nav class="navbar-actions">
             @if (usuario(); as user) {
-                <span class="user-welcome">Hola, {{ user.usuario }}</span>
-                
-                @if (esAdmin()) {
-                    <button (click)="irAlPanelAdmin()" class="btn-login">Panel</button>
-                }
+            <span class="user-welcome">Hola, {{ user.usuario }}</span>
 
-                <button (click)="cerrarSesion()" class="btn-logout">Cerrar Sesión</button>
+            @if (esAdmin()) {
+            <button (click)="irAlPanelAdmin()" class="btn-login">Panel</button>
+            }
+
+            <button (click)="cerrarSesion()" class="btn-logout">Cerrar Sesión</button>
             } @else {
-                <button (click)="irAlLogin()" class="btn-login">Iniciar Sesión</button>
+            <button (click)="irAlLogin()" class="btn-login">Iniciar Sesión</button>
             }
         </nav>
     </div>

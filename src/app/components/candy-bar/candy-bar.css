@@ -1,0 +1,258 @@
+.candybar-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: var(--fuente-sans);
+    color: var(--color-blanco);
+
+    h2 {
+        font-family: var(--fuente-titulo);
+        color: var(--color-2);
+        font-size: 36px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    .alerta-exito {
+        background-color: var(--color-verde);
+        color: var(--color-blanco);
+        padding: 12px 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        text-align: center;
+        box-shadow: var(--iluminacion);
+    }
+
+    .categorias-bar {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+        width: 100%;
+
+        button {
+            padding: 8px 18px;
+            border: 1px solid var(--color-2);
+            border-radius: 20px;
+            background-color: var(--color-blanco-20);
+            color: var(--color-blanco);
+            font-family: var(--fuente-sans);
+            cursor: pointer;
+            transition: all 0.3s ease;
+
+            &:hover {
+                background-color: var(--color-5);
+            }
+
+            &.activo {
+                background-color: var(--color-3);
+                border-color: var(--color-3);
+                color: var(--color-blanco);
+                font-family: var(--fuente-destacada);
+                box-shadow: var(--iluminacion);
+            }
+        }
+    }
+
+    .candybar-layout {
+        display: flex;
+        gap: 30px;
+        width: 100%;
+
+        .productos-seccion {
+            width: 70%;
+
+            .grilla-productos {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+                gap: 20px;
+                width: 100%;
+
+                .tarjeta-producto {
+                    background-color: var(--color-blanco-20);
+                    border: 1px solid var(--color-5);
+                    border-radius: 12px;
+                    padding: 16px;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-between;
+                    backdrop-filter: blur(5px);
+
+                    .info-producto {
+                        h3 {
+                            font-family: var(--fuente-titulo);
+                            color: var(--color-blanco);
+                            font-size: 24px;
+                            margin: 0 0 8px 0;
+                        }
+
+                        .marca {
+                            color: var(--color-2);
+                            font-size: 14px;
+                            margin: 0 0 5px 0;
+                        }
+
+                        .tamano {
+                            display: inline-block;
+                            font-size: 12px;
+                            color: var(--color-2);
+                            background-color: var(--color-4);
+                            padding: 2px 8px;
+                            border-radius: 4px;
+                            margin-bottom: 10px;
+                        }
+
+                        .precio {
+                            font-family: var(--fuente-destacada);
+                            font-size: 20px;
+                            color: var(--color-3);
+                            margin: 10px 0;
+                        }
+                    }
+
+                    .btn-agregar {
+                        width: 100%;
+                        padding: 10px;
+                        background-color: var(--color-5);
+                        color: var(--color-blanco);
+                        border: none;
+                        border-radius: 6px;
+                        font-family: var(--fuente-sans);
+                        cursor: pointer;
+                        transition: background-color 0.2s ease;
+
+                        &:hover {
+                            background-color: var(--color-verde);
+                        }
+                    }
+                }
+            }
+        }
+
+        .carrito-seccion {
+            width: 30%;
+            background-color: var(--color-blanco-20);
+            border: 1px solid var(--color-5);
+            padding: 20px;
+            border-radius: 12px;
+            height: fit-content;
+
+            h3 {
+                font-family: var(--fuente-titulo);
+                color: var(--color-2);
+                font-size: 28px;
+                margin-top: 0;
+                margin-bottom: 15px;
+                border-bottom: 1px solid var(--color-5);
+                padding-bottom: 10px;
+            }
+
+            .carrito-vacio {
+                color: var(--color-2);
+                text-align: center;
+            }
+
+            .lista-carrito {
+                width: 100%;
+
+                .item-carrito {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 12px;
+                    border-bottom: 1px solid var(--color-blanco-20);
+                    padding-bottom: 8px;
+
+                    .item-detalles {
+                        display: flex;
+                        flex-direction: column;
+
+                        strong {
+                            color: var(--color-blanco);
+                        }
+
+                        span {
+                            font-size: 13px;
+                            color: var(--color-2);
+                        }
+                    }
+
+                    .controles-cantidad {
+                        display: flex;
+                        gap: 6px;
+                        align-items: center;
+
+                        button {
+                            width: 28px;
+                            height: 28px;
+                            border: 1px solid var(--color-2);
+                            background-color: var(--color-4);
+                            color: var(--color-blanco);
+                            border-radius: 4px;
+                            cursor: pointer;
+
+                            &:hover {
+                                background-color: var(--color-5);
+                            }
+                        }
+
+                        span {
+                            font-weight: bold;
+                            padding: 0 4px;
+                        }
+                    }
+                }
+            }
+
+            .resumen-total {
+                display: flex;
+                justify-content: space-between;
+                font-size: 18px;
+                margin: 20px 0;
+                padding-top: 10px;
+                border-top: 1px solid var(--color-2);
+
+                strong {
+                    font-family: var(--fuente-destacada);
+                    color: var(--color-3);
+                }
+            }
+
+            .btn-confirmar {
+                width: 100%;
+                padding: 12px;
+                background-color: var(--color-verde);
+                color: var(--color-blanco);
+                border: none;
+                border-radius: 6px;
+                font-family: var(--fuente-sans);
+                font-weight: bold;
+                cursor: pointer;
+                margin-bottom: 10px;
+                box-shadow: var(--iluminacion);
+
+                &:disabled {
+                    opacity: 0.5;
+                    cursor: not-allowed;
+                }
+            }
+
+            .btn-vaciar {
+                width: 100%;
+                padding: 8px;
+                background-color: transparent;
+                border: 1px solid var(--color-rojo);
+                color: var(--color-rojo);
+                border-radius: 6px;
+                font-family: var(--fuente-sans);
+                cursor: pointer;
+
+                &:hover {
+                    background-color: var(--color-rojo);
+                    color: var(--color-blanco);
+                }
+            }
+        }
+    }
+}

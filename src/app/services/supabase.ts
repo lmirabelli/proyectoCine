@@ -1,6 +1,7 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { environment } from '../../environments/environment';
+import { Router } from '@angular/router';
 import { Pelicula } from '../models/pelicula';
 import { Resena } from '../models/resena';
 import { Usuario } from '../models/usuario';
@@ -10,6 +11,7 @@ import { Usuario } from '../models/usuario';
 })
 export class SupabaseService {
     private supabase: SupabaseClient;
+    private router = inject(Router);
     usuarioActual = signal<Usuario | null>(null);
 
     constructor() {
@@ -223,5 +225,11 @@ export class SupabaseService {
             .eq('id', peliculaId);
 
         if (errorPelicula) throw errorPelicula;
+    }
+
+    // Redireccionamientos
+
+    irAlCandy(): void {
+        this.router.navigate(['/candybar']);
     }
 }

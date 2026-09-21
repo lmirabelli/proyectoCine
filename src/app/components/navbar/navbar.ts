@@ -36,6 +36,13 @@ export class NavbarComponent {
     irAlPanelAdmin(): void {
         this.router.navigate(['/panelAdministrador']);
     }
+    esRutaCandy(): boolean {
+        return this.router.url === '/candybar';
+    }
+
+    irAlCandy(): void {
+        this.supabase.irAlCandy();
+    }
 
     async cerrarSesion(): Promise<void> {
         await this.supabase.cerrarSesion();
