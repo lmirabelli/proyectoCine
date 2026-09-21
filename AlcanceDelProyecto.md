@@ -17,7 +17,7 @@
 
 ## E-Mail 3
 
-- Filtro Multicriterio: Se extiende el buscador principal para permitir la filtracion por genero, contemplando peliculas asignadas a multiples generos de forma simultanea.
+- Filtro Multicriterio: Se extiende el buscador principal para permitir la filtracion por genero, contemplando peliculas asignadas a multiples generos de forma simultanea. OK
 
 ## E-Mail 4
 

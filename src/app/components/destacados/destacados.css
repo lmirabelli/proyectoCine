@@ -5,7 +5,7 @@
     background-color: var(--color-blanco-20);
     padding: 14px;
     border-radius: 12px;
-    box-shadow: var(--iluminacion);
+    border: 1px solid var(--color-blanco-20);
     cursor: pointer;
     transition: scale 0.4s;
     &:hover{

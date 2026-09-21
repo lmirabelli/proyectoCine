@@ -21,7 +21,6 @@ export class SupabaseService {
             }
         });
 
-        // Escuchar cambios de estado de autenticación nativos de Supabase
         this.inicializarSuscripcionAuth();
     }
 
@@ -32,7 +31,6 @@ export class SupabaseService {
     private inicializarSuscripcionAuth(): void {
         this.supabase.auth.onAuthStateChange(async (event, session) => {
             if (session?.user) {
-                // Si hay sesión activa en Supabase Auth, cargar el perfil correspondiente
                 const { data: perfil } = await this.supabase
                     .from('perfiles')
                     .select('*')
@@ -50,7 +48,6 @@ export class SupabaseService {
                     localStorage.setItem('usuario_sesion', JSON.stringify(usuarioObj));
                 }
             } else {
-                // Si la sesión expiró o se cerró
                 this.usuarioActual.set(null);
                 localStorage.removeItem('usuario_sesion');
             }
@@ -67,13 +64,13 @@ export class SupabaseService {
 
         const { data, error } = await this.client
             .from('perfiles')
-            .select('categoria')
+            .select('rol')
             .eq('id', userId)
             .maybeSingle();
 
-        if (error || !data || !data.categoria) return false;
+        if (error || !data || !data.rol) return false;
 
-        return data.categoria.trim().toLowerCase() === 'administrador';
+        return data.rol.trim().toLowerCase() === 'administrador';
     }
 
     // --------------------------------------------- MÓDULO CLIENTE / AUTH ------------------------------------------------------------------
@@ -109,7 +106,6 @@ export class SupabaseService {
     }
 
     async cerrarSesion(): Promise<void> {
-        // Cierra la sesión nativa de Supabase y destruye las cookies/tokens
         await this.client.auth.signOut();
         this.usuarioActual.set(null);
         localStorage.removeItem('usuario_sesion');
@@ -126,7 +122,6 @@ export class SupabaseService {
     color_ojos: string;
     dias_vacaciones: number;
 }) {
-    // 1. Crear usuario en Auth
     const { data: authData, error: authError } = await this.supabase.auth.signUp({
         email: perfil.email,
         password: perfil.password
@@ -135,7 +130,6 @@ export class SupabaseService {
     if (authError) throw authError;
     if (!authData.user) throw new Error('No se pudo crear el usuario.');
 
-    // 2. Insertar en perfiles usando el ID nativo de Auth
     const { password, ...datosPerfilSinPassword } = perfil;
     const { data, error } = await this.supabase
         .from('perfiles')

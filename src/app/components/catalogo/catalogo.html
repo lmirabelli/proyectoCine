@@ -1,27 +1,27 @@
 <div class="catalogo-supremo">
-  
-  @if (cargando()) {
-    <p>Cargando catálogo...</p>
-  } @else {
-    @if (!busqueda()) {
-      <div class="catalogo-contenedor">
-        <app-buscador (buscar)="onBuscar($event)"></app-buscador>
-                <h2>Películas Destacadas</h2>
-                @for (p of destacadas(); track p.id) {
-                        <app-destacados [pelicula]="p" (click)="irAlDetalle(p.id)"></app-destacados>
-                } @empty {
-                    <p>No hay películas destacadas para mostrar.</p>
-                }
-            </div>
-        }
+    <app-buscador (buscar)="onBuscar($event)"></app-buscador>
 
-        <div class="catalogo-contenedor">
-            <h2>Cartelera</h2>
-            @for (p of peliculas(); track p.id) {
-                    <app-tarjeta-pelicula [pelicula]="p" (click)="irAlDetalle(p.id)"></app-tarjeta-pelicula>
-            } @empty {
-                <p>No hay películas en cartelera.</p>
-            }
-        </div>
+    @if (cargando()) {
+    <p>Cargando catálogo...</p>
+    } @else {
+    @if (!busqueda()) {
+    <div class="catalogo-contenedor">
+        <h2>Películas Destacadas</h2>
+        @for (p of destacadas(); track p.id) {
+        <app-destacados [pelicula]="p" (click)="irAlDetalle(p.id)"></app-destacados>
+        } @empty {
+        <p>No hay películas destacadas para mostrar.</p>
+        }
+    </div>
+    }
+
+    <div class="catalogo-contenedor">
+        <h2>Cartelera</h2>
+        @for (p of peliculas(); track p.id) {
+        <app-tarjeta-pelicula [pelicula]="p" (click)="irAlDetalle(p.id)"></app-tarjeta-pelicula>
+        } @empty {
+        <p>No hay películas en cartelera.</p>
+        }
+    </div>
     }
 </div>

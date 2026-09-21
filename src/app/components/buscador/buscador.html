@@ -1,21 +1,25 @@
-<form (ngSubmit)="onBuscarSubmit()" class="buscador-container">
-    <label>Buscador: </label>
-    <input 
-        type="text"
-        name="busqueda"
-        placeholder="Buscar película por título..."
-        [value]="busqueda"
-        (input)="busqueda = $any($event.target).value"
-        class="input-busqueda"
-    />
-    
-    <button type="submit" class="btn-buscar">
-        Buscar
-    </button>
+<div class="buscador-container">
 
-    @if (busqueda) {
-    <button type="button" (click)="limpiarBuscador()" class="btn-limpiar">
-        ✖
-    </button>
+    @if (generosSeleccionadosIds().length === 0) {
+    <form (ngSubmit)="onBuscarSubmit()" class="seccion-texto">
+        <label class="label-texto" for="input-texto">Buscar por Título: </label>
+        <input id="input-texto" type="text" name="busqueda" placeholder="Escribí el nombre de la película..."
+            [ngModel]="busquedaTexto()" (ngModelChange)="onTextoInput($event)" class="input-busqueda" />
+    </form>
     }
-</form>
+
+    @if (busquedaTexto().trim() === '') {
+    <div class="seccion-generos">
+        <label class="titulo-generos">Filtrar por Género:</label>
+        <div class="lista-checkboxes">
+            @for (g of generos(); track g.id) {
+            <label class="checkbox-genero">
+                <input type="checkbox" [value]="g.id" [checked]="generosSeleccionadosIds().includes(g.id)"
+                    (change)="onGeneroChange(g.id, $any($event.target).checked)" />
+                {{ g.nombre }}
+            </label>
+            }
+        </div>
+    </div>
+    }
+</div>

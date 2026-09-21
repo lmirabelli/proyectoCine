@@ -1,15 +1,20 @@
-.catalogo-supremo{
-    .catalogo-contenedor{
-        h1,h2,h3{
-            color: var(--color-2);
-        }
+.catalogo-supremo {
+    .catalogo-contenedor {
+
+        
         padding: 18px;
         display: flex;
         flex-wrap: wrap;
         align-items: center;
         justify-content: space-around;
-        h3{
-        width: 100%;
-    }
+        h1,h2,h3 {
+            color: var(--color-2);
+        }
+        h3 {
+            width: 100%;
+        }
+        p{
+            color: var(--color-blanco);
+        }
     }
 }
