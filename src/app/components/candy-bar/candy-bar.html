@@ -7,6 +7,24 @@
     </div>
     }
 
+    @if (reservaPendiente(); as entradas) {
+    <section class="detalles-entradas">
+            @if (imagenPelicula()) {
+            <img [src]="imagenPelicula()" [alt]="entradas.tituloPelicula" class="poster" />
+        }
+            <p class="titulo-pelicula">{{ entradas.tituloPelicula }}</p>
+            <p><strong>Función:</strong> {{ entradas.fechaInicio | date:'dd/MM/yyyy HH:mm' }} hs</p>
+            <p><strong>Sala:</strong> {{ entradas.sala }}</p>
+            <p>
+                <strong>Detalles:</strong> 
+                <span class="badge">{{ entradas.formato }}</span> 
+                <span class="badge">{{ entradas.idioma }}</span>
+            </p>
+            <p><strong>Cantidad:</strong> {{ entradas.cantidad }} entrada(s)</p>
+            <p class="precio-entradas"><strong>Subtotal Entradas:</strong> ${{ entradas.montoTotal }}</p>
+    </section>
+    }
+
     <div class="categorias-bar">
         @for (cat of categoriasDisponibles(); track cat) {
         <button type="button" [class.activo]="categoriaSeleccionada() === cat" (click)="seleccionarCategoria(cat)">
@@ -43,36 +61,56 @@
         <aside class="carrito-seccion">
             <h3>Tu Pedido</h3>
 
-            @if (carrito().length === 0) {
+            @if (carrito().length === 0 && !reservaPendiente()) {
             <p class="carrito-vacio">El carrito está vacío.</p>
             } @else {
-            <div class="lista-carrito">
-                @for (item of carrito(); track item.producto.id) {
-                <div class="item-carrito">
-                    <div class="item-detalles">
-                        <strong>{{ item.producto.producto }}</strong>
-                        <span>${{ item.producto.precio }} c/u</span>
+
+            @if (carrito().length > 0) {
+                <div class="lista-carrito">
+                    @for (item of carrito(); track item.producto.id) {
+                    <div class="item-carrito">
+                        <div class="item-detalles">
+                            <strong>{{ item.producto.producto }}</strong>
+                            <span>${{ item.producto.precio }} c/u</span>
+                        </div>
+                        <div class="controles-cantidad">
+                            <button type="button" (click)="modificarCantidad(item.producto.id, -1)">-</button>
+                            <span>{{ item.cantidad }}</span>
+                            <button type="button" (click)="modificarCantidad(item.producto.id, 1)">+</button>
+                        </div>
                     </div>
-                    <div class="controles-cantidad">
-                        <button type="button" (click)="modificarCantidad(item.producto.id, -1)">-</button>
-                        <span>{{ item.cantidad }}</span>
-                        <button type="button" (click)="modificarCantidad(item.producto.id, 1)">+</button>
-                    </div>
+                    }
                 </div>
-                }
-            </div>
+            }
 
             <div class="resumen-total">
-                <span>Total:</span>
-                <strong>${{ totalCarrito() }}</strong>
+                @if (reservaPendiente()) {
+                    <div class="linea-desglose">
+                        <span>Entradas: </span>
+                        <span>${{ subtotalEntradas() }}</span>
+                    </div>
+                }
+                @if (carrito().length > 0) {
+                    <div class="linea-desglose">
+                        <span>Candy Bar: </span>
+                        <span>${{ subtotalCandy() }}</span>
+                    </div>
+                }
+                <div class="linea-total-final">
+                    <span>Total General: </span>
+                    <strong>${{ totalPagar() }}</strong>
+                </div>
             </div>
 
-            <button class="btn-confirmar" [disabled]="procesando()" (click)="confirmarVenta()">
-                {{ procesando() ? 'Procesando...' : 'Finalizar Compra' }}
+            <button type="button" class="btn-primario" (click)="pagarYGenerarPdf()" [disabled]="procesando()">
+                {{ procesando() ? 'Procesando Pago y QR...' : 'Pagar y Generar Ticket PDF' }}
             </button>
-            <button type="button" class="btn-vaciar" (click)="vaciarCarrito()">
-                Vaciar Carrito
-            </button>
+            
+            @if (carrito().length > 0) {
+                <button type="button" class="btn-vaciar" (click)="vaciarCarrito()">
+                    Vaciar Carrito
+                </button>
+            }
             }
         </aside>
     </div>

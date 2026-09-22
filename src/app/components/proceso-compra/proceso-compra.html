@@ -1,37 +1,60 @@
 <section class="compra-contenedor">
+
     <div class="grupo-opciones">
-        <label>Formatos</label>
-        <div class="botones-selector">
-            @for (fmt of formatos; track fmt) {
-                <button 
-                    type="button" 
-                    class="btn-opcion"
-                    [class.seleccionado]="fmt === formatoSeleccionado()"
-                    (click)="formatoSeleccionado.set(fmt)">
-                    {{ fmt }}
-                </button>
-            }
+        <label>Seleccionar Función (Hoy y Mañana)</label>
+        @if (cargandoFunciones()) {
+            <p class="txt-cargando">Cargando funciones disponibles...</p>
+        } @else {
+            <div class="tarjetas-funciones">
+                @for (func of funciones(); track func.id) {
+                    <button 
+                        type="button" 
+                        class="card-funcion"
+                        [class.seleccionado]="func.id === funcionSeleccionadaId()"
+                        (click)="funcionSeleccionadaId.set(func.id)">
+                        
+                        <div class="hora-fecha">
+                            <span class="fecha">{{ func.inicio | date:'dd/MM' }} - {{ func.inicio | date:'HH:mm' }}</span>
+                        </div>
+
+                        <div class="detalles-funcion">
+                                <span class="funcion idioma">{{func.formato}} - {{ func.idioma }}</span>
+                        </div>
+
+                        <div class="precio-container">
+                            ${{ func.precio }}
+                        </div>
+                    </button>
+                } @empty {
+                    <p class="txt-vacio">No hay funciones disponibles para hoy ni mañana.</p>
+                }
+            </div>
+        }
+    </div>
+
+    <div class="grupo-opciones">
+        <label>Cantidad de Entradas</label>
+        <div class="control-cantidad">
+            <button type="button" (click)="modificarCantidad(-1)" [disabled]="cantidadEntradas() <= 1">-</button>
+            <span>{{ cantidadEntradas() }}</span>
+            <button type="button" (click)="modificarCantidad(1)" [disabled]="cantidadEntradas() >= 10">+</button>
         </div>
     </div>
-    <div class="grupo-opciones">
-        <label>Idioma</label>
-        <div class="botones-selector">
-            @for (lang of idiomas; track lang) {
-                <button 
-                    type="button" 
-                    class="btn-opcion"
-                    [class.seleccionado]="lang === idiomaSeleccionado()"
-                    (click)="idiomaSeleccionado.set(lang)">
-                    {{ lang }}
-                </button>
-            }
-        </div>
+
+    <div class="resumen-precio">
+        <span>Total Entradas:</span>
+        <strong>${{ montoFinal() }}</strong>
+        @if (esPrimeraCompra()) {
+            <span>¡20% OFF aplicado en tu primera compra!</span>
+        }
     </div>
-    <button 
+
+    <div class="btn-confirmar">
+            <button 
         type="button" 
-        class="btn-confirmar" 
-        [disabled]="procesando()"
+        [disabled]="procesando() || !funcionSeleccionadaId()"
         (click)="finalizarCompra()">
-        {{ procesando() ? 'Generando Comprobante...' : 'Pagar y Descargar Ticket PDF' }}
+        {{ procesando() ? 'Guardando...' : 'Continuar' }}
     </button>
+    </div>
 </section>

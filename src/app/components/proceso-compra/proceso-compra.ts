@@ -1,9 +1,20 @@
 import { Component, Input, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ComprobanteReserva, FormatoProyeccion, IdiomaProyeccion } from '../../models/reserva';
-import { PdfService } from '../../services/pdf';
+import { Router } from '@angular/router';
 import { SupabaseService } from '../../services/supabase';
+
+export interface FuncionPelicula {
+    id: string;
+    pelicula_id: string;
+    sala_id: string;
+    formato: string;
+    idioma: string;
+    precio: number;
+    inicio: string;
+    fin: string;
+    salas?: { nombre: string; formato?: string };
+}
 
 @Component({
     selector: 'app-proceso-compra',
@@ -17,31 +28,39 @@ export class ProcesoCompraComponent implements OnInit {
     @Input() peliculaId!: string;
     @Input() tituloPelicula!: string;
 
-    private pdfService = inject(PdfService);
     private supabase = inject(SupabaseService);
+    private router = inject(Router);
 
     readonly precioBase = 12000;
 
-    formatos: FormatoProyeccion[] = ['2D', '3D', '4D', '5D'];
-    idiomas: IdiomaProyeccion[] = ['Castellano', 'Subtitulada'];
-
-    formatoSeleccionado = signal<FormatoProyeccion>('2D');
-    idiomaSeleccionado = signal<IdiomaProyeccion>('Castellano');
+    funciones = signal<FuncionPelicula[]>([]);
+    funcionSeleccionadaId = signal<string>('');
+    cantidadEntradas = signal<number>(1);
+    
+    cargandoFunciones = signal<boolean>(false);
     procesando = signal<boolean>(false);
 
     cantidadCompras = signal<number>(0);
     esPrimeraCompra = computed(() => this.cantidadCompras() === 0);
 
+    funcionObjeto = computed(() => {
+        return this.funciones().find(f => f.id === this.funcionSeleccionadaId());
+    });
+
+    montoUnitario = computed(() => {
+        const precioFuncion = this.funcionObjeto()?.precio ?? this.precioBase;
+        return this.esPrimeraCompra() ? precioFuncion * 0.8 : precioFuncion;
+    });
 
     montoFinal = computed(() => {
-        if (this.esPrimeraCompra()) {
-            return this.precioBase * 0.8;
-        }
-        return this.precioBase;
+        return this.montoUnitario() * this.cantidadEntradas();
     });
 
     async ngOnInit(): Promise<void> {
-        await this.cargarComprasUsuario();
+        await Promise.all([
+            this.cargarComprasUsuario(),
+            this.cargarFunciones()
+        ]);
     }
 
     private async cargarComprasUsuario(): Promise<void> {
@@ -59,46 +78,71 @@ export class ProcesoCompraComponent implements OnInit {
         }
     }
 
-    async finalizarCompra(): Promise<void> {
+    private async cargarFunciones(): Promise<void> {
+    if (!this.peliculaId) return;
+
+    this.cargandoFunciones.set(true);
+
+    const { data, error } = await this.supabase.client
+        .from('funciones')
+        .select('*, salas(nombre, formato)')
+        .eq('pelicula_id', this.peliculaId)
+        .order('inicio', { ascending: true });
+
+    if (!error && data) {
+        const ahora = new Date();
+
+        const limiteManana = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate() + 2, 0, 0, 0);
+
+        const funcionesValidas = data.filter((f: FuncionPelicula) => {
+            const fechaFuncion = new Date(f.inicio);
+            return fechaFuncion > ahora && fechaFuncion < limiteManana;
+        });
+
+        this.funciones.set(funcionesValidas);
+
+        if (funcionesValidas.length > 0) {
+            this.funcionSeleccionadaId.set(funcionesValidas[0].id);
+        } else {
+            this.funcionSeleccionadaId.set('');
+        }
+    }
+
+    this.cargandoFunciones.set(false);
+}
+
+    modificarCantidad(cambio: number): void {
+        const nuevaCant = this.cantidadEntradas() + cambio;
+        if (nuevaCant >= 1 && nuevaCant <= 10) {
+            this.cantidadEntradas.set(nuevaCant);
+        }
+    }
+
+    finalizarCompra(): void {
+        const funcion = this.funcionObjeto();
+
+        if (!funcion) {
+            alert('Por favor seleccioná una función disponible.');
+            return;
+        }
+
         this.procesando.set(true);
 
-        try {
-            const nuevaReserva: ComprobanteReserva = {
-                idReserva: 'RES-' + Math.floor(100000 + Math.random() * 900000),
-                peliculaId: this.peliculaId,
-                tituloPelicula: this.tituloPelicula,
-                formato: this.formatoSeleccionado(),
-                idioma: this.idiomaSeleccionado(),
-                asientos: ['F4', 'F5'],
-                montoTotal: this.montoFinal(),
-                fechaCompra: new Date().toISOString(),
-                codigoQR: ''
-            };
+        const datosEntradas = {
+            peliculaId: this.peliculaId,
+            tituloPelicula: this.tituloPelicula,
+            funcionId: funcion.id,
+            formato: funcion.formato || funcion.salas?.formato || '2D',
+            idioma: funcion.idioma,
+            cantidad: this.cantidadEntradas(),
+            montoTotal: this.montoFinal(),
+            sala: funcion.salas?.nombre ?? 'Sala Principal',
+            fechaInicio: funcion.inicio,
+            fechaReserva: new Date().toISOString()
+        };
 
-            // 1. Generar y descargar el comprobante en PDF
-            await this.pdfService.generarComprobantePDF(nuevaReserva);
+        localStorage.setItem('reserva_entradas_pendiente', JSON.stringify(datosEntradas));
 
-            // 2. Incrementar la columna 'compras' en Supabase
-            const usuarioSesion = this.supabase.usuarioActual();
-            if (usuarioSesion) {
-                const nuevasCompras = this.cantidadCompras() + 1;
-
-                const { error } = await this.supabase.client
-                    .from('perfiles')
-                    .update({ compras: nuevasCompras })
-                    .eq('id', usuarioSesion.id);
-
-                if (!error) {
-                    this.cantidadCompras.set(nuevasCompras);
-                }
-            }
-
-            alert('¡Compra realizada con éxito! Se ha descargado tu comprobante.');
-        } catch (error) {
-            console.error('Error al procesar la compra:', error);
-            alert('Ocurrió un error al generar el comprobante.');
-        } finally {
-            this.procesando.set(false);
-        }
+        this.router.navigate(['/candybar']);
     }
 }
