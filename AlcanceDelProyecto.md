@@ -22,7 +22,7 @@
 ## E-Mail 4
 
 - Venta e Integracion de Candy Bar: Desarrollo del modulo de venta de comestibles y bebidas por categorias. OK
-- QR Unificado (Cine + Candy): Integracion de los productos comestibles comprados en el mismo codigo QR del ticket de cine.
+- QR Unificado (Cine + Candy): Integracion de los productos comestibles comprados en el mismo codigo QR del ticket de cine. OK
 - Gestion Dinamica de Cupones: Panel para ajustar el porcentaje del cupon de bienvenida y creacion de cupones segmentados por reglas (ej. usuarios mayores de 50 años).
 
 ## E-Mail 5
