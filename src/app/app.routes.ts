@@ -6,7 +6,7 @@ import { GestionFuncionesComponent } from './components/gestion-funciones/gestio
 import { CandyBarComponent } from './components/candy-bar/candy-bar';
 import { MenuEmpleadosComponent } from './components/menu-empleados/menu-empleados';
 import { CuponesComponent } from './components/cupones/cupones';
-import { empleadoGuard } from './components/guards/roles';
+import { empleadoGuard } from './guards/roles';
 
 export const routes: Routes = [
     { path: '', component: CatalogoComponent },

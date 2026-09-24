@@ -30,7 +30,7 @@
 - Gestion de Roles y Permisos: OK
     - Rol Empleado: Interfaz dedicada para escaneo de QR y despacho de Candy Bar. Permite ingreso manual de codigo si falla el lector.
     - Rol Admin: Control total de configuraciones, salas y productos.
-- Control de Estado del QR: Invalidacion automatica e inmediata del codigo QR tras su primer uso para acceso o entrega de comida.
+- Control de Estado del QR: Invalidacion automatica e inmediata del codigo QR tras su primer uso para acceso o entrega de comida. OK
 - Motor de Asignacion Automatica de Salas: Algoritmo que recibe la grilla de dias/horarios solicitada y asigna salas disponibles automaticamente evitando solapamientos de funciones.
 
 ## E-Mail 6 
