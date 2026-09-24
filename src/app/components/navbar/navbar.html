@@ -13,8 +13,8 @@
             @if (usuario(); as user) {
             <span class="user-welcome">Hola, {{ user.usuario }}</span>
 
-            @if (esAdmin()) {
-            <button (click)="irAlPanelAdmin()" class="btn-login">Panel</button>
+            @if (esPersonal()) {
+            <button (click)="irAlMenuEmpleados()" class="btn-login">Panel</button>
             }
 
             <button (click)="cerrarSesion()" class="btn-logout">Cerrar Sesión</button>

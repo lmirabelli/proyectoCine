@@ -7,4 +7,5 @@ export interface Usuario {
     password?: string;
     fecha_nacimiento?: string;
     created_at?: string;
+    rol?: 'admin' | 'empleado' | 'cliente';
 }

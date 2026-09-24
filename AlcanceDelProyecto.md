@@ -23,11 +23,11 @@
 
 - Venta e Integracion de Candy Bar: Desarrollo del modulo de venta de comestibles y bebidas por categorias. OK
 - QR Unificado (Cine + Candy): Integracion de los productos comestibles comprados en el mismo codigo QR del ticket de cine. OK
-- Gestion Dinamica de Cupones: Panel para ajustar el porcentaje del cupon de bienvenida y creacion de cupones segmentados por reglas (ej. usuarios mayores de 50 años).
+- Gestion Dinamica de Cupones: Panel para ajustar el porcentaje del cupon de bienvenida y creacion de cupones segmentados por reglas (ej. usuarios mayores de 50 años). OK
 
 ## E-Mail 5
 
-- Gestion de Roles y Permisos:
+- Gestion de Roles y Permisos: OK
     - Rol Empleado: Interfaz dedicada para escaneo de QR y despacho de Candy Bar. Permite ingreso manual de codigo si falla el lector.
     - Rol Admin: Control total de configuraciones, salas y productos.
 - Control de Estado del QR: Invalidacion automatica e inmediata del codigo QR tras su primer uso para acceso o entrega de comida.

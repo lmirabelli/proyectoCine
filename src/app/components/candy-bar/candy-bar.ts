@@ -3,34 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SupabaseService } from '../../services/supabase';
 import { PdfService } from '../../services/pdf';
-import { ComprobanteReserva } from '../../models/reserva';
-
-export interface ProductoCandy {
-  id: string;
-  producto: string;
-  tamano?: string;
-  marca?: string;
-  precio: number;
-  categoria?: string;
-}
-
-export interface ItemCarrito {
-  producto: ProductoCandy;
-  cantidad: number;
-}
-
-export interface ReservaEntradasCache {
-  peliculaId: string;
-  tituloPelicula: string;
-  funcionId: string;
-  formato: string;
-  idioma: string;
-  cantidad: number;
-  montoTotal: number;
-  sala: string;
-  fechaInicio: string;
-  fechaReserva: string;
-}
+import { ComprobanteReserva, ReservaEntradasCache } from '../../models/reserva';
+import { ItemCarrito, ProductoCandy } from '../../models/candy';
 
 @Component({
   selector: 'app-candy-bar',
@@ -275,6 +249,48 @@ export class CandyBarComponent implements OnInit {
     try {
       const idReservaGenerado = 'COMP-' + Math.floor(100000 + Math.random() * 900000);
       const entradas = this.reservaPendiente();
+      const usuarioSesion = this.supabase.usuarioActual();
+
+      const detalleItems: Array<{
+        nombre: string;
+        cantidad: number;
+        precioUnitario: number;
+        tamano?: string;
+        marca?: string;
+      }> = [];
+
+      if (entradas) {
+        detalleItems.push({
+          nombre: `Entrada: ${entradas.tituloPelicula} (${entradas.formato} - ${entradas.sala})`,
+          cantidad: entradas.cantidad,
+          precioUnitario: entradas.montoTotal / entradas.cantidad
+        });
+      }
+
+      this.carrito().forEach(i => {
+        detalleItems.push({
+          nombre: i.producto.producto,
+          cantidad: i.cantidad,
+          precioUnitario: i.producto.precio,
+          tamano: i.producto.tamano,
+          marca: i.producto.marca
+        });
+      });
+
+      const { error: errorComprobante } = await this.supabase.client
+        .from('comprobantes')
+        .insert([{
+          codigo_reserva: idReservaGenerado,
+          usuario_id: usuarioSesion?.id || null,
+          monto_total: this.totalPagar(),
+          estado: 'PENDIENTE',
+          detalle_items: detalleItems
+        }]);
+
+      if (errorComprobante) {
+        console.error('Error al registrar el comprobante en Supabase:', errorComprobante);
+        throw new Error('No se pudo registrar la compra en la base de datos.');
+      }
 
       const datosComprobante: ComprobanteReserva = {
         idReserva: idReservaGenerado,
@@ -300,19 +316,14 @@ export class CandyBarComponent implements OnInit {
       await this.pdfService.generarComprobantePDF(datosComprobante);
 
       const cupon = this.cuponAplicado();
-    if (cupon) {
-      const { error: errorCupon } = await this.supabase.client
-        .from('cupones')
-        .update({ disponible: cupon.disponible - 1 })
-        .eq('id', cupon.id);
-
-      if (errorCupon) {
-        console.error('Error al actualizar disponibilidad del cupón:', errorCupon);
+      if (cupon) {
+        await this.supabase.client
+          .from('cupones')
+          .update({ disponible: cupon.disponible - 1 })
+          .eq('id', cupon.id);
       }
-    }
 
-      const usuarioSesion = this.supabase.usuarioActual();
-      if (usuarioSesion && this.reservaPendiente()) {
+      if (usuarioSesion && entradas) {
         const { data } = await this.supabase.client
           .from('perfiles')
           .select('compras')

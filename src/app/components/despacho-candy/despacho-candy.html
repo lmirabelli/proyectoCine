@@ -1,0 +1,85 @@
+<div class="despacho-container">
+    <header class="despacho-header">
+        <h2>🍿 Terminal de Despacho & Canje - Candy Bar</h2>
+        <p>Escaneá el código QR del cliente o ingresá la clave alfanumérica de la compra.</p>
+    </header>
+
+    <section class="busqueda-box">
+        <div class="input-action-row">
+            <input type="text" [ngModel]="codigoInput()" (ngModelChange)="codigoInput.set($event)"
+                (keyup.enter)="buscarComprobante()" placeholder="Ej: COMP-123456" class="input-codigo" autofocus />
+
+            <button class="btn-buscar" (click)="buscarComprobante()" [disabled]="cargando()">
+                Buscar
+            </button>
+
+            <button class="btn-camara" (click)="toggleCamara()">
+                {{ escaneoActivo() ? 'Cerrar Cámara' : '📷 Escanear QR' }}
+            </button>
+
+            @if (codigoInput() || comprobanteActual()) {
+            <button class="btn-limpiar" (click)="limpiar()">Limpiar</button>
+            }
+        </div>
+
+        @if (escaneoActivo()) {
+        <div class="scanner-wrapper">
+            <zxing-scanner (scanSuccess)="alEscanearQR($event)"></zxing-scanner>
+        </div>
+        }
+    </section>
+
+    @if (mensajeError()) {
+    <div class="alert alert-danger">
+        ⚠️ {{ mensajeError() }}
+    </div>
+    }
+
+    @if (mensajeExito()) {
+    <div class="alert alert-success">
+        ✅ {{ mensajeExito() }}
+    </div>
+    }
+
+    @if (comprobanteActual(); as comp) {
+    <div class="card-resultado" [class.entregado]="comp.estado === 'ENTREGADO'">
+        <div class="card-header-resumen">
+            <div>
+                <h3>Comprobante: <p>{{ comp.codigo_reserva }}</p></h3>
+                <small>Fecha de Compra: {{ comp.fecha_compra | date:'dd/MM/yyyy HH:mm' }}</small>
+            </div>
+
+            <div class="badge-estado" [class.badge-pendiente]="comp.estado === 'PENDIENTE'"
+                [class.badge-entregado]="comp.estado === 'ENTREGADO'">
+                {{ comp.estado }}
+            </div>
+        </div>
+
+        <hr />
+
+        <h4>Ítems a Entregar al Cliente:</h4>
+        <ul class="lista-items">
+            @for (item of comp.detalle_items; track item.nombre) {
+            <li>
+                <span class="cantidad">{{ item.cantidad }}x</span>
+                <span class="nombre-item">{{ item.nombre }} - {{item.tamano}} - {{item.marca}}</span>
+            </li>
+            }
+        </ul>
+
+        <div class="monto-total">
+            Monto Total Pagado: <strong>${{ comp.monto_total.toLocaleString() }}</strong>
+        </div>
+
+        @if (comp.estado === 'PENDIENTE') {
+        <button class="btn-despachar-final" (click)="marcarComoEntregado()" [disabled]="cargando()">
+            ✔ Confirmar Entrega de Productos
+        </button>
+        } @else {
+        <div class="aviso-despachado">
+            ℹ️ Este pedido ya fue entregado el {{ comp.fecha_canje | date:'dd/MM/yyyy HH:mm' }}.
+        </div>
+        }
+    </div>
+    }
+</div>

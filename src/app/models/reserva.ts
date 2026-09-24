@@ -22,3 +22,34 @@ export interface ComprobanteReserva {
 
     itemsCandy?: ItemCandyPDF[];
 }
+
+export interface ReservaEntradasCache {
+    peliculaId: string;
+    tituloPelicula: string;
+    funcionId: string;
+    formato: string;
+    idioma: string;
+    cantidad: number;
+    montoTotal: number;
+    sala: string;
+    fechaInicio: string;
+    fechaReserva: string;
+}
+
+export interface ItemComprobante {
+    nombre: string;
+    cantidad: number;
+    precioUnitario: number;
+    tamano: string;
+    marca: string;
+}
+
+export interface Comprobante {
+    id: string;
+    codigo_reserva: string;
+    estado: 'PENDIENTE' | 'ENTREGADO' | 'CANCELADO';
+    detalle_items: ItemComprobante[];
+    monto_total: number;
+    fecha_compra: string;
+    fecha_canje?: string;
+}

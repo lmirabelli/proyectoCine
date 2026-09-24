@@ -16,18 +16,26 @@ export class NavbarComponent {
 
     usuario = this.supabase.usuarioActual;
     esAdmin = signal<boolean>(false);
+    esPersonal = signal<boolean>(false);
 
     constructor() {
-        effect(async () => {
-            const user = this.usuario();
-            if (user) {
-                const esAdministrador = await this.supabase.esAdministrador();
-                this.esAdmin.set(esAdministrador);
-            } else {
-                this.esAdmin.set(false);
-            }
-        });
-    }
+    effect(async () => {
+        const user = this.usuario();
+        if (user) {
+            const esAdmin = await this.supabase.esAdministrador();
+            const esEmpleado = await this.supabase.esEmpleado();
+
+            this.esPersonal.set(esAdmin || esEmpleado);
+        } else {
+            this.esPersonal.set(false);
+        }
+    });
+}
+
+irAlMenuEmpleados(): void {
+    this.router.navigate(['/menu-empleados']);
+}
+    
 
     irAlLogin(): void {
         this.router.navigate(['/login']);

@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { SupabaseService } from '../../services/supabase';
-import { CuponesComponent } from '../cupones/cupones';
 
 interface Pelicula {
     id: string;
@@ -35,7 +34,7 @@ interface Funcion {
 @Component({
     selector: 'app-gestion-funciones',
     standalone: true,
-    imports: [CommonModule, FormsModule, RouterLink, CuponesComponent],
+    imports: [CommonModule, FormsModule, RouterLink],
     templateUrl: './gestion-funciones.html',
     styleUrl: './gestion-funciones.css'
 })

@@ -1,0 +1,32 @@
+.menu-empleados-container{
+    width: 95%;
+    margin: 24px auto;
+    padding: 24px;
+    background-color: var(--color-blanco-20);
+    border-radius: 8px;
+    border: 1px solid var(--color-blanco-20);
+    h2{
+        margin-bottom: 12px;
+    }
+    .botonera{
+        width: 100%;
+        display: flex;
+        justify-content: space-around;
+        .btn-menu{
+            padding: 4px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--color-5);
+            background-color: var(--color-2);
+            font-family: var(--fuente-sans);
+            text-align: center;
+            color: var(--color-blanco);
+            font-size: 18px;
+            cursor: pointer;
+            transition: background 0.3s, border 0.3s;
+            &:hover{
+                background-color: var(--color-3);
+                border: 1px solid var(--color-4);
+            }
+        }
+    }
+}

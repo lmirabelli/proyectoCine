@@ -59,21 +59,36 @@ export class SupabaseService {
 
     // --------------------------------------------- MODULO ADMINISTRADOR ------------------------------------------------------------------
 
-    async esAdministrador(): Promise<boolean> {
+    async obtenerPerfilActual(): Promise<{ id: string; rol?: string;[key: string]: any } | null> {
         const { data: { session } } = await this.client.auth.getSession();
         const userId = session?.user?.id || this.usuarioActual()?.id;
 
-        if (!userId) return false;
+        if (!userId) return null;
 
         const { data, error } = await this.client
             .from('perfiles')
-            .select('rol')
+            .select('*')
             .eq('id', userId)
             .maybeSingle();
 
-        if (error || !data || !data.rol) return false;
+        if (error || !data) return null;
+        return data;
+    }
 
-        return data.rol.trim().toLowerCase() === 'administrador';
+    async esAdministrador(): Promise<boolean> {
+        const perfil = await this.obtenerPerfilActual();
+        if (!perfil || !perfil['rol']) return false;
+
+        const rol = perfil['rol'].toString().trim().toLowerCase();
+        return rol === 'administrador' || rol === 'admin';
+    }
+
+    async esEmpleado(): Promise<boolean> {
+        const perfil = await this.obtenerPerfilActual();
+        if (!perfil || !perfil['rol']) return false;
+
+        const rol = perfil['rol'].toString().trim().toLowerCase();
+        return rol === 'empleado' || rol === 'administrador' || rol === 'admin';
     }
 
     // --------------------------------------------- MODULO CUPONES Y DESCUENTOS ------------------------------------------------------------------
