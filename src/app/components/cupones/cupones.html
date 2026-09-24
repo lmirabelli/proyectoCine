@@ -1,0 +1,128 @@
+@if (esAdmin()) {
+<div class="panel-promociones-container">
+
+    <section class="card-promocion">
+        <h3>Configurar Descuento por Edad</h3>
+
+        <form (ngSubmit)="guardarDescuentoEdad()" class="formulario-promociones">
+            <div class="grupo-input">
+                <label>Nombre del Descuento:</label>
+                <input type="text" [(ngModel)]="nombreDescuento" name="nombreDescuento"
+                    placeholder="Ej: Beneficio Adultos Mayores" required />
+            </div>
+
+            <div class="grupo-input">
+                <label>Edad Mínima:</label>
+                <input type="number" [(ngModel)]="edadMinima" name="edadMinima" min="1" max="120" required />
+            </div>
+
+            <div class="grupo-input">
+                <label>Porcentaje de Descuento (%):</label>
+                <input type="number" [(ngModel)]="porcentajeDescuentoEdad" name="porcentajeDescuentoEdad" min="1"
+                    max="100" required />
+            </div>
+
+            <div class="grupo-input">
+                <label>Tope Máximo de Descuento ($):</label>
+                <input type="number" [(ngModel)]="topeMaximo" name="topeMaximo" min="1" required />
+            </div>
+
+            <button type="submit" class="btn-guardar">Agregar Descuento</button>
+        </form>
+
+        <div class="listado-descuentos">
+            <h4>Reglas Activas en Base de Datos</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Edad Mín.</th>
+                        <th>Descuento</th>
+                        <th>Tope Máx.</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (desc of descuentos(); track desc.id) {
+                    <tr>
+                        <td><strong>{{ desc.nombre }}</strong></td>
+                        <td>+{{ desc.edad_minima }} años</td>
+                        <td>{{ desc.porcentaje }}%</td>
+                        <td>${{ desc.tope_maximo }}</td>
+                        <td>
+                            <button type="button" class="btn-eliminar" (click)="borrarDescuento(desc.id)">
+                                Eliminar
+                            </button>
+                        </td>
+                    </tr>
+                    } @empty {
+                    <tr>
+                        <td colspan="5">No hay reglas de descuento por edad configuradas.</td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <hr class="divisor" />
+
+    <section class="card-promocion">
+        <h3>Gestión de Cupones Promocionales</h3>
+
+        <form (ngSubmit)="guardarCupon()" class="formulario-promociones">
+            <div class="grupo-input">
+                <label>Código del Cupón:</label>
+                <input type="text" [(ngModel)]="codigoCupon" name="codigoCupon" placeholder="Ej: CINE2026" required />
+            </div>
+
+            <div class="grupo-input">
+                <label>Descuento (%):</label>
+                <input type="number" [(ngModel)]="descuentoCupon" name="descuentoCupon" min="1" max="100" required />
+            </div>
+
+            <div class="grupo-input">
+                <label>Usos Disponibles:</label>
+                <input type="number" [(ngModel)]="cuponesDisponibles" name="cuponesDisponibles" min="1" required />
+            </div>
+
+            <button type="submit" class="btn-guardar">Crear Cupón</button>
+        </form>
+
+        <div class="listado-cupones">
+            <h4>Cupones Activos</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Descuento</th>
+                        <th>Disponibles</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (cupon of cupones(); track cupon.id) {
+                    <tr>
+                        <td><strong>{{ cupon.codigo }}</strong></td>
+                        <td>{{ cupon.descuento }}%</td>
+                        <td>
+                            <span [class.agotado]="cupon.disponible <= 0">
+                                {{ cupon.disponible > 0 ? cupon.disponible + ' usos' : 'Agotado' }}
+                            </span>
+                        </td>
+                        <td>
+                            <button type="button" class="btn-eliminar" (click)="borrarCupon(cupon.id)">Eliminar</button>
+                        </td>
+                    </tr>
+                    } @empty {
+                    <tr>
+                        <td colspan="4">No hay cupones creados.</td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+</div>
+}

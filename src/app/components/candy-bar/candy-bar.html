@@ -9,19 +9,19 @@
 
     @if (reservaPendiente(); as entradas) {
     <section class="detalles-entradas">
-            @if (imagenPelicula()) {
-            <img [src]="imagenPelicula()" [alt]="entradas.tituloPelicula" class="poster" />
+        @if (imagenPelicula()) {
+        <img [src]="imagenPelicula()" [alt]="entradas.tituloPelicula" class="poster" />
         }
-            <p class="titulo-pelicula">{{ entradas.tituloPelicula }}</p>
-            <p><strong>Función:</strong> {{ entradas.fechaInicio | date:'dd/MM/yyyy HH:mm' }} hs</p>
-            <p><strong>Sala:</strong> {{ entradas.sala }}</p>
-            <p>
-                <strong>Detalles:</strong> 
-                <span class="badge">{{ entradas.formato }}</span> 
-                <span class="badge">{{ entradas.idioma }}</span>
-            </p>
-            <p><strong>Cantidad:</strong> {{ entradas.cantidad }} entrada(s)</p>
-            <p class="precio-entradas"><strong>Subtotal Entradas:</strong> ${{ entradas.montoTotal }}</p>
+        <p class="titulo-pelicula">{{ entradas.tituloPelicula }}</p>
+        <p><strong>Función:</strong> {{ entradas.fechaInicio | date:'dd/MM/yyyy HH:mm' }} hs</p>
+        <p><strong>Sala:</strong> {{ entradas.sala }}</p>
+        <p>
+            <strong>Detalles:</strong>
+            <span class="badge">{{ entradas.formato }}</span>
+            <span class="badge">{{ entradas.idioma }}</span>
+        </p>
+        <p><strong>Cantidad:</strong> {{ entradas.cantidad }} entrada(s)</p>
+        <p class="precio-entradas"><strong>Subtotal Entradas:</strong> ${{ entradas.montoTotal }}</p>
     </section>
     }
 
@@ -66,36 +66,60 @@
             } @else {
 
             @if (carrito().length > 0) {
-                <div class="lista-carrito">
-                    @for (item of carrito(); track item.producto.id) {
-                    <div class="item-carrito">
-                        <div class="item-detalles">
-                            <strong>{{ item.producto.producto }}</strong>
-                            <span>${{ item.producto.precio }} c/u</span>
-                        </div>
-                        <div class="controles-cantidad">
-                            <button type="button" (click)="modificarCantidad(item.producto.id, -1)">-</button>
-                            <span>{{ item.cantidad }}</span>
-                            <button type="button" (click)="modificarCantidad(item.producto.id, 1)">+</button>
-                        </div>
+            <div class="lista-carrito">
+                @for (item of carrito(); track item.producto.id) {
+                <div class="item-carrito">
+                    <div class="item-detalles">
+                        <strong>{{ item.producto.producto }}</strong>
+                        <span>${{ item.producto.precio }} c/u</span>
                     </div>
-                    }
+                    <div class="controles-cantidad">
+                        <button type="button" (click)="modificarCantidad(item.producto.id, -1)">-</button>
+                        <span>{{ item.cantidad }}</span>
+                        <button type="button" (click)="modificarCantidad(item.producto.id, 1)">+</button>
+                    </div>
                 </div>
+                }
+            </div>
             }
 
             <div class="resumen-total">
                 @if (reservaPendiente()) {
-                    <div class="linea-desglose">
-                        <span>Entradas: </span>
-                        <span>${{ subtotalEntradas() }}</span>
-                    </div>
+                <div class="linea-desglose">
+                    <span>Entradas: </span>
+                    <span>${{ subtotalEntradas() }}</span>
+                </div>
                 }
                 @if (carrito().length > 0) {
-                    <div class="linea-desglose">
-                        <span>Candy Bar: </span>
-                        <span>${{ subtotalCandy() }}</span>
-                    </div>
+                <div class="linea-desglose">
+                    <span>Candy Bar: </span>
+                    <span>${{ subtotalCandy() }}</span>
+                </div>
                 }
+
+                <div class="seccion-input-cupon">
+                    <input type="text" [ngModel]="inputCupon()" (ngModelChange)="inputCupon.set($event)"
+                        placeholder="Código de cupón" />
+                    <button type="button" (click)="aplicarCupon()">Aplicar</button>
+                </div>
+                @if (mensajeCupon()) {
+                <p class="txt-cupon-msg">{{ mensajeCupon() }}</p>
+                }
+
+                @if (montoDescuentoEdad() > 0) {
+                <div class="linea-desglose descuento-aplicado">
+                    <span>{{ descuentoReglaAplicada()?.nombre }}:</span>
+                    <span>-${{ montoDescuentoEdad() }}</span>
+                </div>
+                }
+
+                @if (montoDescuentoCupon() > 0) {
+                <div class="linea-desglose descuento-aplicado">
+                    <span>Cupón ({{ cuponAplicado()?.codigo }}):</span>
+                    <span>-${{ montoDescuentoCupon() }}</span>
+                </div>
+                }
+
                 <div class="linea-total-final">
                     <span>Total General: </span>
                     <strong>${{ totalPagar() }}</strong>
@@ -105,11 +129,11 @@
             <button type="button" class="btn-primario" (click)="pagarYGenerarPdf()" [disabled]="procesando()">
                 {{ procesando() ? 'Procesando Pago y QR...' : 'Pagar y Generar Ticket PDF' }}
             </button>
-            
+
             @if (carrito().length > 0) {
-                <button type="button" class="btn-vaciar" (click)="vaciarCarrito()">
-                    Vaciar Carrito
-                </button>
+            <button type="button" class="btn-vaciar" (click)="vaciarCarrito()">
+                Vaciar Carrito
+            </button>
             }
             }
         </aside>

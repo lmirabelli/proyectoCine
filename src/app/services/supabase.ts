@@ -44,7 +44,8 @@ export class SupabaseService {
                         id: perfil.id,
                         email: session.user.email || perfil.email,
                         nombre: perfil.nombre,
-                        usuario: perfil.usuario
+                        usuario: perfil.usuario,
+                        fecha_nacimiento: perfil.fecha_nacimiento
                     };
                     this.usuarioActual.set(usuarioObj);
                     localStorage.setItem('usuario_sesion', JSON.stringify(usuarioObj));
@@ -56,7 +57,7 @@ export class SupabaseService {
         });
     }
 
-    // --------------------------------------------- MÓDULO ADMINISTRADOR ------------------------------------------------------------------
+    // --------------------------------------------- MODULO ADMINISTRADOR ------------------------------------------------------------------
 
     async esAdministrador(): Promise<boolean> {
         const { data: { session } } = await this.client.auth.getSession();
@@ -75,7 +76,84 @@ export class SupabaseService {
         return data.rol.trim().toLowerCase() === 'administrador';
     }
 
-    // --------------------------------------------- MÓDULO CLIENTE / AUTH ------------------------------------------------------------------
+    // --------------------------------------------- MODULO CUPONES Y DESCUENTOS ------------------------------------------------------------------
+
+    async getCupones() {
+        const { data, error } = await this.supabase
+            .from('cupones')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        return data || [];
+    }
+
+    async crearCupon(codigo: string, descuento: number) {
+        const { data, error } = await this.supabase
+            .from('cupones')
+            .insert([{ codigo, descuento }])
+            .select()
+            .single();
+
+        if (error) throw error;
+        return data;
+    }
+
+
+    async getDescuentos() {
+        const { data, error } = await this.supabase
+            .from('descuentos')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        return data || [];
+    }
+
+    async crearDescuento(descuentoObj: {
+        nombre: string;
+        edad_minima: number;
+        porcentaje: number;
+        tope_maximo: number;
+    }) {
+        const { data, error } = await this.supabase
+            .from('descuentos')
+            .insert([descuentoObj])
+            .select()
+            .single();
+
+        if (error) throw error;
+        return data;
+    }
+
+    async eliminarDescuento(id: string) {
+        const { error } = await this.supabase
+            .from('descuentos')
+            .delete()
+            .eq('id', id);
+
+        if (error) throw error;
+    }
+
+    async getDescuentosActivos() {
+        const { data, error } = await this.supabase
+            .from('descuentos')
+            .select('*');
+        if (error) throw error;
+        return data || [];
+    }
+
+    async validarCupon(codigo: string) {
+        const { data, error } = await this.supabase
+            .from('cupones')
+            .select('*')
+            .ilike('codigo', codigo.trim())
+            .maybeSingle();
+        if (error) throw error;
+        return data;
+    }
+
+    // --------------------------------------------- MODULO CLIENTE  ------------------------------------------------------------------
 
     async iniciarSesion(email: string, pass: string) {
         const { data, error } = await this.client.auth.signInWithPassword({
@@ -114,39 +192,39 @@ export class SupabaseService {
     }
 
     async registrarUsuario(perfil: {
-    nombre: string;
-    apellido: string;
-    usuario: string;
-    email: string;
-    password: string;
-    fecha_nacimiento: string;
-    tipo_sangre: string;
-    color_ojos: string;
-    dias_vacaciones: number;
-}) {
-    const { data: authData, error: authError } = await this.supabase.auth.signUp({
-        email: perfil.email,
-        password: perfil.password
-    });
+        nombre: string;
+        apellido: string;
+        usuario: string;
+        email: string;
+        password: string;
+        fecha_nacimiento: string;
+        tipo_sangre: string;
+        color_ojos: string;
+        dias_vacaciones: number;
+    }) {
+        const { data: authData, error: authError } = await this.supabase.auth.signUp({
+            email: perfil.email,
+            password: perfil.password
+        });
 
-    if (authError) throw authError;
-    if (!authData.user) throw new Error('No se pudo crear el usuario.');
+        if (authError) throw authError;
+        if (!authData.user) throw new Error('No se pudo crear el usuario.');
 
-    const { password, ...datosPerfilSinPassword } = perfil;
-    const { data, error } = await this.supabase
-        .from('perfiles')
-        .insert([{
-            id: authData.user.id,
-            ...datosPerfilSinPassword
-        }])
-        .select()
-        .single();
+        const { password, ...datosPerfilSinPassword } = perfil;
+        const { data, error } = await this.supabase
+            .from('perfiles')
+            .insert([{
+                id: authData.user.id,
+                ...datosPerfilSinPassword
+            }])
+            .select()
+            .single();
 
-    if (error) throw error;
-    return data;
-}
+        if (error) throw error;
+        return data;
+    }
 
-    // Catálogo
+    // Catalogo
     async getPeliculas(busqueda: string = '') {
         let query = this.supabase.from('peliculas').select('*');
         if (busqueda.trim() !== '') {

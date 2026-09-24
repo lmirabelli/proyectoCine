@@ -5,5 +5,6 @@ export interface Usuario {
     usuario: string;
     email?: string;
     password?: string;
+    fecha_nacimiento?: string;
     created_at?: string;
 }

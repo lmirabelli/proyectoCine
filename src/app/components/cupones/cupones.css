@@ -1,0 +1,51 @@
+.card-promocion{
+    width: 95%;
+    margin: 18px auto;
+    padding: 12px;
+    border: 1px solid var(--color-blanco-20);
+    background-color: var(--color-blanco-20);
+    border-radius: 8px;
+    h3{
+        margin-bottom: 12px;
+    }
+    .formulario-promociones{
+        .grupo-input{
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            margin: 2px 0;
+            padding: 2px;
+            border: 1px solid var(--color-blanco-20);
+            border-radius: 4px;
+            background-color: var(--color-blanco-20);
+            label{
+                width: 60%;
+                color: var(--color-2);
+            }
+            input{
+                width: 40%;
+                color: var(--color-1);
+            }
+            label,input{
+                text-align: center;
+                font-family: var(--fuente-sans);
+            }
+        }
+    }
+    .listado-descuentos, .listado-cupones{
+        table{
+            margin: 0 auto;
+            thead,tbody{
+                tr{
+                    th,td{
+                        color: var(--color-2);
+                        font-family: var(--fuente-sans);
+                        width: 16%;
+                        border: 1px solid var(--color-blanco-20);
+                        text-align: center;
+                    }
+                }
+            }
+        }
+    }
+}
