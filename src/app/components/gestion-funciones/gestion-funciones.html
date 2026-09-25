@@ -11,7 +11,7 @@
     <h1>Gestión de Funciones</h1>
 
     <section class="formulario-card">
-        <h2>Programar Función (Motor Automático)</h2>
+        <h2>Programar Función</h2>
 
         <form (submit)="$event.preventDefault(); crearFuncion()" class="grid-form">
             
@@ -55,18 +55,6 @@
                     <option [value]="i">{{ i }}</option>
                     }
                 </select>
-            </div>
-
-            <div class="campo">
-                <label for="formato">Formato</label>
-                <input type="text" id="formato" [value]="formatoSeleccionado()" readonly name="formato"
-                    placeholder="Formato de la sala" />
-            </div>
-
-            <div class="campo">
-                <label for="precio">Precio Entrada</label>
-                <input type="text" id="precio" [value]="precioInput() ? ('$' + precioInput()) : ''" readonly
-                    name="precio" placeholder="$ 0" />
             </div>
 
             @if (fechaFinPelicula(); as fin) {

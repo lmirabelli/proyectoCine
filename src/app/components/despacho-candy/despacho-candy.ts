@@ -26,7 +26,7 @@ export class DespachoCandyComponent {
 
   async buscarComprobante(codigoABuscar?: string): Promise<void> {
     const codigo = (codigoABuscar || this.codigoInput()).trim().toUpperCase();
-    
+
     if (!codigo) return;
 
     this.limpiarMensajes();
@@ -56,9 +56,18 @@ export class DespachoCandyComponent {
   }
   alEscanearQR(codigoRespuesta: string): void {
     if (codigoRespuesta && !this.cargando()) {
-      this.codigoInput.set(codigoRespuesta);
+      let idExtraido = codigoRespuesta.trim();
+
+      try {
+        const objetoQr = JSON.parse(codigoRespuesta);
+        idExtraido = objetoQr.id || objetoQr.idReserva || objetoQr.codigo_reserva || idExtraido;
+      } catch (e) {
+        console.warn('El QR no es un JSON válido o vino como texto plano:', e);
+      }
+
+      this.codigoInput.set(idExtraido);
       this.escaneoActivo.set(false);
-      this.buscarComprobante(codigoRespuesta);
+      this.buscarComprobante(idExtraido);
     }
   }
 
@@ -85,7 +94,7 @@ export class DespachoCandyComponent {
       if (error) throw error;
 
       this.mensajeExito.set(`¡Comprobante ${comp.codigo_reserva} entregado con éxito!`);
-      
+
       this.comprobanteActual.set({
         ...comp,
         estado: 'ENTREGADO',

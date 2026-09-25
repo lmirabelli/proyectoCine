@@ -23,6 +23,7 @@ export class PeliculaIdComponent implements OnInit {
     resenas = signal<any[]>([]);
 
     comentarioTexto = signal<string>('');
+    estrellasSeleccionadas = signal<number>(0);
 
     usuario = this.supabaseService.usuarioActual;
 
@@ -62,7 +63,7 @@ export class PeliculaIdComponent implements OnInit {
             this.cargando.set(false);
         }
     }
-    estrellasSeleccionadas = signal<number>(0);
+
     async enviarResena(): Promise<void> {
         const usuarioLogueado = this.usuario();
 

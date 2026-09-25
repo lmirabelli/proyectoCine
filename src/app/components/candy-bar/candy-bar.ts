@@ -106,33 +106,38 @@ export class CandyBarComponent implements OnInit {
   private async evaluarDescuentosAutomaticos(): Promise<void> {
     const usuario = this.supabase.usuarioActual();
 
-    if (!usuario || !usuario.id) return;
+    if (!usuario || !usuario.id) {
+      this.descuentoReglaAplicada.set(null);
+      return;
+    }
 
     try {
-      const { data: perfil } = await this.supabase.client
+      const { data: perfil, error } = await this.supabase.client
         .from('perfiles')
-        .select('fecha_nacimiento')
+        .select('compras')
         .eq('id', usuario.id)
         .single();
 
-      if (!perfil?.fecha_nacimiento) return;
-
-      const edadUser = this.calcularEdad(perfil.fecha_nacimiento);
-
-      const { data: reglas, error } = await this.supabase.client
-        .from('descuentos')
-        .select('*');
-
-      if (error) throw error;
-
-      if (reglas && reglas.length > 0) {
-        const reglaCoincidente = reglas.find(r => edadUser >= r.edad_minima);
-        if (reglaCoincidente) {
-          this.descuentoReglaAplicada.set(reglaCoincidente);
-        }
+      if (error || !perfil) {
+        this.descuentoReglaAplicada.set(null);
+        return;
       }
+
+      const cantidadCompras = perfil.compras ?? 0;
+
+      if (cantidadCompras === 0) {
+        this.descuentoReglaAplicada.set({
+          nombre: '1º Compra (20% OFF)',
+          porcentaje: 20,
+          tope_maximo: 5000
+        });
+      } else {
+        this.descuentoReglaAplicada.set(null);
+      }
+
     } catch (err) {
-      console.error('Error al evaluar reglas de descuento automático:', err);
+      console.error('Error al evaluar el descuento de primera compra:', err);
+      this.descuentoReglaAplicada.set(null);
     }
   }
 
@@ -310,7 +315,6 @@ export class CandyBarComponent implements OnInit {
           .eq('id', entradas.peliculaId);
       }
 
-      // Formatear la fecha y hora si existen
       const fechaHorario = entradas?.fechaInicio
         ? new Date(entradas.fechaInicio).toLocaleString('es-AR', {
             day: '2-digit',
@@ -321,7 +325,6 @@ export class CandyBarComponent implements OnInit {
           })
         : '';
 
-      // Armado del comprobante con la sala formateada y la cantidad explícita
       const datosComprobante: ComprobanteReserva = {
         idReserva: idReservaGenerado,
         peliculaId: entradas?.peliculaId,
@@ -377,7 +380,6 @@ export class CandyBarComponent implements OnInit {
 
       this.mensajeExito.set('¡Compra efectuada exitosamente! Tu ticket PDF con el código QR ha sido descargado.');
 
-      // Retardo de 1500ms antes de redirigir
       setTimeout(() => {
         this.router.navigate(['/']);
       }, 1500);

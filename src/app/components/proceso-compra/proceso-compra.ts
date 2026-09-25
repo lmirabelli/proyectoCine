@@ -29,8 +29,18 @@ export class ProcesoCompraComponent implements OnInit {
     cargandoFunciones = signal<boolean>(false);
     procesando = signal<boolean>(false);
 
-    cantidadCompras = signal<number>(0);
-    esPrimeraCompra = computed(() => this.cantidadCompras() === 0);
+    porcentajeDescuentoEdad = signal<number>(0);
+
+    usuario = this.supabase.usuarioActual;
+
+    porcentajeDescuentoTotal = computed(() => {
+        return this.porcentajeDescuentoEdad();
+    });
+
+    porcentajeDescuentoMensaje = computed(() => {
+        const descEdad = this.porcentajeDescuentoEdad();
+        return descEdad > 0 ? '(Descuento por Edad)' : '';
+    });
 
     funcionObjeto = computed(() => {
         return this.funciones().find(f => f.id === this.funcionSeleccionadaId());
@@ -38,7 +48,9 @@ export class ProcesoCompraComponent implements OnInit {
 
     montoUnitario = computed(() => {
         const precioFuncion = this.funcionObjeto()?.precio ?? this.precioBase;
-        return this.esPrimeraCompra() ? precioFuncion * 0.8 : precioFuncion;
+        const descuento = this.porcentajeDescuentoTotal();
+
+        return descuento > 0 ? precioFuncion * (1 - descuento / 100) : precioFuncion;
     });
 
     montoFinal = computed(() => {
@@ -47,58 +59,94 @@ export class ProcesoCompraComponent implements OnInit {
 
     async ngOnInit(): Promise<void> {
         await Promise.all([
-            this.cargarComprasUsuario(),
+            this.cargarDatosUsuarioYDescuentos(),
             this.cargarFunciones()
         ]);
     }
 
-    private async cargarComprasUsuario(): Promise<void> {
+    private async cargarDatosUsuarioYDescuentos(): Promise<void> {
         const usuarioSesion = this.supabase.usuarioActual();
         if (!usuarioSesion) return;
 
-        const { data, error } = await this.supabase.client
-            .from('perfiles')
-            .select('compras')
-            .eq('id', usuarioSesion.id)
-            .single();
+        try {
+            const { data: perfil, error: errorPerfil } = await this.supabase.client
+                .from('perfiles')
+                .select('fecha_nacimiento')
+                .eq('id', usuarioSesion.id)
+                .single();
 
-        if (!error && data) {
-            this.cantidadCompras.set(data.compras ?? 0);
+            if (errorPerfil || !perfil) return;
+
+            if (perfil.fecha_nacimiento) {
+                const edad = this.calcularEdad(perfil.fecha_nacimiento);
+                await this.evaluarDescuentoPorEdad(edad);
+            }
+        } catch (err) {
+            console.error('Error al cargar datos de descuento por edad del usuario:', err);
+        }
+    }
+
+    private calcularEdad(fechaNacimientoStr: string): number {
+        const hoy = new Date();
+        const nacimiento = new Date(fechaNacimientoStr);
+        let edad = hoy.getFullYear() - nacimiento.getFullYear();
+        const mes = hoy.getMonth() - nacimiento.getMonth();
+
+        if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) {
+            edad--;
+        }
+        return edad;
+    }
+
+    private async evaluarDescuentoPorEdad(edad: number): Promise<void> {
+        const { data: reglas, error } = await this.supabase.client
+            .from('descuentos')
+            .select('*');
+
+        if (error || !reglas) return;
+
+        const reglaAplicable = reglas.find((r: any) => {
+            const min = r.edad_min ?? 0;
+            const max = r.edad_max ?? 120;
+            return edad >= min && edad <= max;
+        });
+
+        if (reglaAplicable && reglaAplicable.porcentaje) {
+            this.porcentajeDescuentoEdad.set(reglaAplicable.porcentaje);
         }
     }
 
     private async cargarFunciones(): Promise<void> {
-    if (!this.peliculaId) return;
+        if (!this.peliculaId) return;
 
-    this.cargandoFunciones.set(true);
+        this.cargandoFunciones.set(true);
 
-    const { data, error } = await this.supabase.client
-        .from('funciones')
-        .select('*, salas(nombre, formato)')
-        .eq('pelicula_id', this.peliculaId)
-        .order('inicio', { ascending: true });
+        const { data, error } = await this.supabase.client
+            .from('funciones')
+            .select('*, salas(nombre, formato)')
+            .eq('pelicula_id', this.peliculaId)
+            .order('inicio', { ascending: true });
 
-    if (!error && data) {
-        const ahora = new Date();
+        if (!error && data) {
+            const ahora = new Date();
+            const limiteManana = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate() + 2, 0, 0, 0);
 
-        const limiteManana = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate() + 2, 0, 0, 0);
+            const funcionesValidas = data.filter((f: FuncionPelicula) => {
+                const fechaFuncion = new Date(f.inicio);
+                return fechaFuncion > ahora && fechaFuncion < limiteManana;
+            });
 
-        const funcionesValidas = data.filter((f: FuncionPelicula) => {
-            const fechaFuncion = new Date(f.inicio);
-            return fechaFuncion > ahora && fechaFuncion < limiteManana;
-        });
+            this.funciones.set(funcionesValidas);
 
-        this.funciones.set(funcionesValidas);
-
-        if (funcionesValidas.length > 0) {
-            this.funcionSeleccionadaId.set(funcionesValidas[0].id);
-        } else {
-            this.funcionSeleccionadaId.set('');
+            if (funcionesValidas.length > 0) {
+                this.funcionSeleccionadaId.set(funcionesValidas[0].id);
+            } else {
+                this.funcionSeleccionadaId.set('');
+            }
         }
-    }
 
-    this.cargandoFunciones.set(false);
-}
+        this.cargandoFunciones.set(false);
+    }
 
     modificarCantidad(cambio: number): void {
         const nuevaCant = this.cantidadEntradas() + cambio;

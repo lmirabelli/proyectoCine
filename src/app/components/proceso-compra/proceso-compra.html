@@ -18,7 +18,7 @@
                         </div>
 
                         <div class="detalles-funcion">
-                                <span class="funcion idioma">{{func.formato}} - {{ func.idioma }}</span>
+                            <span class="funcion idioma">{{ func.formato }} - {{ func.idioma }}</span>
                         </div>
 
                         <div class="precio-container">
@@ -44,17 +44,20 @@
     <div class="resumen-precio">
         <span>Total Entradas:</span>
         <strong>${{ montoFinal() }}</strong>
-        @if (esPrimeraCompra()) {
-            <span>¡20% OFF aplicado en tu primera compra!</span>
+
+        @if (porcentajeDescuentoTotal() > 0) {
+            <span class="descuento-aplicado">
+                🎉 ¡{{ porcentajeDescuentoTotal() }}% OFF aplicado! {{ porcentajeDescuentoMensaje() }}
+            </span>
         }
     </div>
 
     <div class="btn-confirmar">
-            <button 
-        type="button" 
-        [disabled]="procesando() || !funcionSeleccionadaId()"
-        (click)="finalizarCompra()">
-        {{ procesando() ? 'Guardando...' : 'Continuar' }}
-    </button>
+        <button 
+            type="button" 
+            [disabled]="procesando() || !funcionSeleccionadaId()"
+            (click)="finalizarCompra()">
+            {{ procesando() ? 'Guardando...' : 'Continuar' }}
+        </button>
     </div>
 </section>
