@@ -1,0 +1,80 @@
+<div class="alta-container">
+    @if (cargando()) {
+    <div class="alerta-cargando">Verificando credenciales de administrador...</div>
+    } @else if (!esAdmin()) {
+    <div class="alerta-no-autorizado">
+        <h2>Acceso Restringido</h2>
+        <p>Se requieren privilegios de <strong>administrador</strong> para dar de alta películas.</p>
+        <button routerLink="/" class="btn-volver">Volver al Inicio</button>
+    </div>
+    } @else {
+    <h1>Alta de Nueva Película</h1>
+
+    <section class="card-formulario">
+        <form (submit)="$event.preventDefault(); guardarPelicula()" class="grid-form">
+            
+            <div class="campo campo-full">
+                <label for="titulo">Título de la Película</label>
+                <input type="text" id="titulo" [ngModel]="titulo()" (ngModelChange)="titulo.set($event)" name="titulo" placeholder="Ej: Volver al futuro IV" required />
+            </div>
+
+            <div class="campo campo-full">
+                <label for="sinopsis">Sinopsis</label>
+                <textarea id="sinopsis" rows="4" [ngModel]="sinopsis()" (ngModelChange)="sinopsis.set($event)" name="sinopsis" placeholder="Descripción detallada de la trama..." required></textarea>
+            </div>
+
+            <div class="campo">
+                <label for="duracion">Duración (minutos)</label>
+                <input type="number" id="duracion" [ngModel]="duracionMinutos()" (ngModelChange)="duracionMinutos.set($event)" name="duracion" min="1" required />
+            </div>
+
+            <div class="campo">
+                <label for="formato">Formato de Proyección</label>
+                <select id="formato" [ngModel]="formato()" (ngModelChange)="formato.set($event)" name="formato">
+                    @for (f of formatosDisponibles; track f) {
+                    <option [value]="f">{{ f }}</option>
+                    }
+                </select>
+            </div>
+
+            <div class="campo">
+                <label for="restriccion">Restricción de Edad</label>
+                <select id="restriccion" [ngModel]="restriccionEdad()" (ngModelChange)="restriccionEdad.set($event)" name="restriccion">
+                    @for (op of opcionesEdad; track op.valor) {
+                    <option [value]="op.valor">{{ op.label }}</option>
+                    }
+                </select>
+            </div>
+
+            <div class="campo">
+                <label for="estreno">Año de Estreno</label>
+                <input type="number" id="estreno" [ngModel]="estreno()" (ngModelChange)="estreno.set($event)" name="estreno" min="1900" max="2100" />
+            </div>
+
+            <div class="campo campo-full">
+                <label for="afiche">Afiche / Poster (Archivo Local)</label>
+                <input type="file" id="afiche" (change)="onArchivoSeleccionado($event)" accept="image/*" required />
+            </div>
+
+            @if (vistaPreviaUrl(); as preview) {
+            <div class="campo-full vista-previa-box">
+                <p>Vista previa del afiche:</p>
+                <img [src]="preview" alt="Vista previa afiche" class="img-preview" />
+            </div>
+            }
+
+            <button type="submit" [disabled]="guardando()" class="btn-guardar campo-full">
+                {{ guardando() ? 'Subiendo afiche y guardando...' : 'Guardar Película' }}
+            </button>
+        </form>
+
+        @if (mensajeError()) {
+        <div class="banner-error">{{ mensajeError() }}</div>
+        }
+
+        @if (mensajeExito()) {
+        <div class="banner-exito">{{ mensajeExito() }}</div>
+        }
+    </section>
+    }
+</div>

@@ -2,16 +2,10 @@ import { Component, OnInit, Output, EventEmitter, inject, signal } from '@angula
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SupabaseService } from '../../services/supabase';
+import { Genero } from '../../models/pelicula';
+import { FiltroBusqueda } from '../../models/busqueda';
 
-export interface Genero {
-  id: string;
-  nombre: string;
-}
 
-export interface FiltroBusqueda {
-  texto: string;
-  generosIds: string[];
-}
 
 @Component({
   selector: 'app-buscador',

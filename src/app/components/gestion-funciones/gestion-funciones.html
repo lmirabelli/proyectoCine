@@ -11,41 +11,40 @@
     <h1>Gestión de Funciones</h1>
 
     <section class="formulario-card">
-        <h2>Programar Función</h2>
+        <h2>Programar Función (Motor Automático)</h2>
 
         <form (submit)="$event.preventDefault(); crearFuncion()" class="grid-form">
-            <div class="campo">
+            
+            <div class="campo campo-full">
                 <label for="pelicula">Película</label>
                 <select id="pelicula" [ngModel]="peliculaSeleccionadaId()"
-                    (ngModelChange)="peliculaSeleccionadaId.set($event)" name="pelicula" required>
-                    <option value="" disabled selected>Seleccioná una película</option>
+                    (ngModelChange)="peliculaSeleccionadaId.set($event); calcularSalaYHorarioAutomatico()" name="pelicula" required>
+                    <option value="" disabled selected>Seleccioná una película para calcular asignación automática</option>
                     @for (p of peliculas(); track p.id) {
-                    <option [value]="p.id">{{ p.titulo }} ({{ p.duracion_minutos }} min)</option>
+                    <option [value]="p.id">{{ p.titulo }} ({{ p.duracion_minutos }} min) - [{{ p.formato || '2D' }}]</option>
                     }
                 </select>
             </div>
 
             <div class="campo">
-                <label for="sala">Sala</label>
+                <label for="inicio">Inicio de la Función</label>
+                <input type="datetime-local" id="inicio" 
+                    [ngModel]="fechaInicioInput()"
+                    (ngModelChange)="fechaInicioInput.set($event)" 
+                    name="inicio" required />
+            </div>
+
+            <div class="campo">
+                <label for="sala">Sala Asignada</label>
                 <select id="sala" [ngModel]="salaSeleccionadaId()" (ngModelChange)="salaSeleccionadaId.set($event)"
-                    name="sala" required>
-                    <option value="" disabled selected>Seleccioná una sala</option>
+                    name="sala" required [disabled]="!peliculaSeleccionadaId()">
+                    <option value="" disabled selected>
+                        {{ peliculaSeleccionadaId() ? 'Seleccioná una sala' : 'Primero seleccioná una película' }}
+                    </option>
                     @for (s of salas(); track s.id) {
-                    <option [value]="s.id">{{ s.nombre }}</option>
+                    <option [value]="s.id">{{ s.nombre }} (Formato: {{ s.formato }})</option>
                     }
                 </select>
-            </div>
-
-            <div class="campo">
-                <label for="formato">Formato (definido por la sala)</label>
-                <input type="text" id="formato" [value]="formatoSeleccionado()" readonly name="formato"
-                    placeholder="Seleccioná una sala" />
-            </div>
-
-            <div class="campo">
-                <label for="precio">Precio Entrada</label>
-                <input type="text" id="precio" [value]="precioInput() ? ('$' + precioInput()) : ''" readonly
-                    name="precio" placeholder="$ 0" />
             </div>
 
             <div class="campo">
@@ -59,21 +58,26 @@
             </div>
 
             <div class="campo">
-                <label for="inicio">Inicio de la Función</label>
-                <input type="datetime-local" id="inicio" [ngModel]="fechaInicioInput()"
-                    (ngModelChange)="fechaInicioInput.set($event)" name="inicio" required />
+                <label for="formato">Formato</label>
+                <input type="text" id="formato" [value]="formatoSeleccionado()" readonly name="formato"
+                    placeholder="Formato de la sala" />
+            </div>
+
+            <div class="campo">
+                <label for="precio">Precio Entrada</label>
+                <input type="text" id="precio" [value]="precioInput() ? ('$' + precioInput()) : ''" readonly
+                    name="precio" placeholder="$ 0" />
             </div>
 
             @if (fechaFinPelicula(); as fin) {
-            <div class="resumen-calculo">
-                <p>Fin de proyección: <strong>{{ fin | date:'dd/MM/yyyy HH:mm' }}</strong></p>
-                <p>Próxima función habilitada en esta sala a partir de: <strong>{{ (fin.getTime() + 1800000) |
-                        date:'HH:mm' }} hs</strong> (30 min limpieza)</p>
+            <div class="resumen-calculo campo-full">
+                <p>Fin de proyección estimada: <strong>{{ fin | date:'dd/MM/yyyy HH:mm' }} hs</strong></p>
+                <p>Liberación de sala con limpieza (30 min): <strong>{{ (fin.getTime() + 1800000) | date:'HH:mm' }} hs</strong></p>
             </div>
             }
 
-            <button type="submit" [disabled]="guardando()" class="btn-guardar">
-                {{ guardando() ? 'Validando y Guardando...' : 'Programar Función' }}
+            <button type="submit" [disabled]="guardando()" class="btn-guardar campo-full">
+                {{ guardando() ? 'Guardando...' : 'Programar Función' }}
             </button>
         </form>
 

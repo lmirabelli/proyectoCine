@@ -3,18 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { SupabaseService } from '../../services/supabase';
-
-export interface FuncionPelicula {
-    id: string;
-    pelicula_id: string;
-    sala_id: string;
-    formato: string;
-    idioma: string;
-    precio: number;
-    inicio: string;
-    fin: string;
-    salas?: { nombre: string; formato?: string };
-}
+import { FuncionPelicula } from '../../models/funcion';
 
 @Component({
     selector: 'app-proceso-compra',

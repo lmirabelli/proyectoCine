@@ -4,9 +4,16 @@ export interface Pelicula {
     sinopsis: string;
     afiche_url: string;
     duracion_minutos: number;
-    ventas_totales: number;
-    created_at: string;
-    estreno: number;
-    puntuacion_total: number;
-    puntuacion_cantidad: number;
+    formato: string;
+    restriccion_edad: number;
+    disponibilidad: boolean;
+    estreno?: number;
+    ventas_totales?: number;
+    puntuacion_total?: number;
+    puntuacion_cantidad?: number;
+}
+
+export interface Genero {
+    id: string;
+    nombre: string;
 }

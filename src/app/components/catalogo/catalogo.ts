@@ -6,7 +6,8 @@ import { SupabaseService } from '../../services/supabase';
 import { Pelicula } from '../../models/pelicula';
 import { TarjetaPeliculaComponent } from '../tarjeta-pelicula/tarjeta-pelicula';
 import { Destacados } from '../destacados/destacados';
-import { Buscador, FiltroBusqueda } from '../buscador/buscador';
+import { Buscador } from '../buscador/buscador';
+import { FiltroBusqueda } from '../../models/busqueda';
 
 @Component({
     selector: 'app-catalogo',

@@ -1,22 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { SupabaseService } from '../../services/supabase';
-
-export interface Cupon {
-  id: string;
-  codigo: string;
-  descuento: number;
-  disponible: number;
-  fecha_creacion?: string;
-}
-
-export interface DescuentoRegla {
-  id: string;
-  nombre: string;
-  edad_minima: number;
-  porcentaje: number;
-  tope_maximo: number;
-}
+import { Cupon, DescuentoRegla } from '../../models/cupones';
 
 @Component({
   selector: 'app-cupones',
@@ -30,13 +15,11 @@ export class CuponesComponent implements OnInit {
 
   esAdmin = signal<boolean>(false);
 
-  // Estados para Cupones
   cupones = signal<Cupon[]>([]);
   codigoCupon: string = '';
   descuentoCupon: number = 10;
-  cuponesDisponibles: number = 100; // Configurable desde el form
+  cuponesDisponibles: number = 100;
 
-  // Estados para Descuentos por Edad
   descuentos = signal<DescuentoRegla[]>([]);
   nombreDescuento: string = 'Jubilados / +65';
   edadMinima: number = 65;
@@ -60,7 +43,6 @@ export class CuponesComponent implements OnInit {
     await Promise.all([this.cargarCupones(), this.cargarDescuentos()]);
   }
 
-  // --- CUPONES ---
   async cargarCupones(): Promise<void> {
     try {
       const { data, error } = await this.supabaseService.client
@@ -94,7 +76,6 @@ export class CuponesComponent implements OnInit {
 
       if (error) throw error;
 
-      // Reset del formulario
       this.codigoCupon = '';
       this.descuentoCupon = 10;
       this.cuponesDisponibles = 100;
@@ -122,7 +103,6 @@ export class CuponesComponent implements OnInit {
     }
   }
 
-  // --- REGLAS DE EDAD ---
   async cargarDescuentos(): Promise<void> {
     try {
       const { data, error } = await this.supabaseService.client

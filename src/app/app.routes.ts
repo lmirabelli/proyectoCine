@@ -17,5 +17,6 @@ export const routes: Routes = [
     { path: 'cupones', component: CuponesComponent },
     { path: 'candybar', component: CandyBarComponent },
     {path: 'despacho',loadComponent: () => import('./components/despacho-candy/despacho-candy').then(m => m.DespachoCandyComponent),canActivate: [empleadoGuard]},
+    {path: 'gestionPeliculas',loadComponent: () => import('./components/gestion-peliculas/gestion-peliculas').then(m => m.GestionPeliculasComponent),canActivate: [empleadoGuard]},
     { path: '**', redirectTo: '' }
 ];

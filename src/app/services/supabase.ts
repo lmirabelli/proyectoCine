@@ -325,4 +325,26 @@ export class SupabaseService {
     irAlCandy(): void {
         this.router.navigate(['/candybar']);
     }
+
+    // STORAGE PARA AFICHES
+
+    async subirAfiche(file: File): Promise<string> {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
+    const filePath = `afiches/${fileName}`;
+
+    const { error: uploadError } = await this.client.storage
+        .from('afiches')
+        .upload(filePath, file);
+
+    if (uploadError) {
+        throw new Error(`Error al subir imagen: ${uploadError.message}`);
+    }
+
+    const { data } = this.client.storage
+        .from('afiches')
+        .getPublicUrl(filePath);
+
+    return data.publicUrl;
+}
 }

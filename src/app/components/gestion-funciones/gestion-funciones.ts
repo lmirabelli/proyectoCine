@@ -3,33 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { SupabaseService } from '../../services/supabase';
-
-interface Pelicula {
-    id: string;
-    titulo: string;
-    duracion_minutos: number;
-}
-
-interface Sala {
-    id: string;
-    nombre: string;
-    capacidad: number;
-    precio: number;
-    formato: string;
-}
-
-interface Funcion {
-    id?: string;
-    pelicula_id: string;
-    sala_id: string;
-    formato: string;
-    idioma: string;
-    precio: number;
-    inicio: string;
-    fin: string;
-    peliculas?: { titulo: string };
-    salas?: { nombre: string };
-}
+import { Pelicula } from '../../models/pelicula';
+import { Sala } from '../../models/sala';
+import { FuncionPelicula } from '../../models/funcion';
 
 @Component({
     selector: 'app-gestion-funciones',
@@ -47,9 +23,9 @@ export class GestionFuncionesComponent implements OnInit {
     mensajeError = signal<string | null>(null);
     mensajeExito = signal<string | null>(null);
 
-    peliculas = signal<Pelicula[]>([]);
+    peliculas = signal<Partial<Pelicula>[]>([]);
     salas = signal<Sala[]>([]);
-    funciones = signal<Funcion[]>([]);
+    funciones = signal<FuncionPelicula[]>([]);
 
     peliculaSeleccionadaId = signal<string>('');
     salaSeleccionadaId = signal<string>('');
@@ -73,17 +49,10 @@ export class GestionFuncionesComponent implements OnInit {
         const pelicula = this.peliculaObjeto();
         const inicioStr = this.fechaInicioInput();
 
-        if (!pelicula || !inicioStr) return null;
+        if (!pelicula || !pelicula.duracion_minutos || !inicioStr) return null;
 
         const inicio = new Date(inicioStr);
         return new Date(inicio.getTime() + pelicula.duracion_minutos * 60000);
-    });
-
-    fechaFinLiberacionSala = computed(() => {
-        const finPeli = this.fechaFinPelicula();
-        if (!finPeli) return null;
-
-        return new Date(finPeli.getTime() + 30 * 60 * 1000);
     });
 
     async ngOnInit(): Promise<void> {
@@ -108,7 +77,7 @@ export class GestionFuncionesComponent implements OnInit {
     private async cargarPeliculas(): Promise<void> {
         const { data, error } = await this.supabase.client
             .from('peliculas')
-            .select('id, titulo, duracion_minutos');
+            .select('id, titulo, duracion_minutos, formato');
 
         if (!error && data) {
             this.peliculas.set(data);
@@ -122,9 +91,6 @@ export class GestionFuncionesComponent implements OnInit {
 
         if (!error && data) {
             this.salas.set(data);
-            if (data.length > 0) {
-                this.salaSeleccionadaId.set(data[0].id);
-            }
         }
     }
 
@@ -139,56 +105,90 @@ export class GestionFuncionesComponent implements OnInit {
         }
     }
 
-    private validarDisponibilidadSala(
-        salaId: string, 
-        inicioNuevo: Date, 
-        finNuevoPelicula: Date
-    ): { valido: boolean; motivo?: string } {
-        const MARGEN_LIMPIEZA_MS = 30 * 60 * 1000;
+    private formatearParaInput(date: Date): string {
+        const pad = (num: number) => num.toString().padStart(2, '0');
+        const year = date.getFullYear();
+        const month = pad(date.getMonth() + 1);
+        const day = pad(date.getDate());
+        const hours = pad(date.getHours());
+        const minutes = pad(date.getMinutes());
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+    }
+
+    calcularSalaYHorarioAutomatico(): void {
+        this.mensajeError.set(null);
+        this.mensajeExito.set(null);
+
+        const pelicula = this.peliculaObjeto();
+        if (!pelicula || !pelicula.duracion_minutos) {
+            this.mensajeError.set('Seleccioná una película para calcular el horario y la sala.');
+            return;
+        }
+
+        const formatoPeli = (pelicula.formato || '2D').toUpperCase().trim();
         
-        const inicioNuevoMs = inicioNuevo.getTime();
-        const finNuevoConLimpiezaMs = finNuevoPelicula.getTime() + MARGEN_LIMPIEZA_MS;
+        const salasCompatibles = this.salas().filter(s => 
+            (s.formato || '').toUpperCase().trim() === formatoPeli
+        );
 
-        const funcionesEnSala = this.funciones().filter(f => f.sala_id === salaId);
+        if (salasCompatibles.length === 0) {
+            this.mensajeError.set(`No existen salas compatibles registradas para el formato ${formatoPeli}.`);
+            return;
+        }
 
-        for (const f of funcionesEnSala) {
-            const inicioExistenteMs = new Date(f.inicio).getTime();
-            const finExistentePeliMs = new Date(f.fin).getTime();
-            const finExistenteConLimpiezaMs = finExistentePeliMs + MARGEN_LIMPIEZA_MS;
+        const AHORA = new Date();
+        const MARGEN_LIMPIEZA_MS = 30 * 60 * 1000;
+        const DOS_HORAS_MS = 2 * 60 * 60 * 1000;
 
-            if (inicioNuevoMs >= inicioExistenteMs && inicioNuevoMs < finExistenteConLimpiezaMs) {
-                const disponibleA = new Date(finExistenteConLimpiezaMs).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                return { 
-                    valido: false, 
-                    motivo: `La sala está ocupada por "${f.peliculas?.titulo}". Estará disponible desde las ${disponibleA} hs.` 
-                };
+        let mejorSala: Sala | null = null;
+        let mejorFechaInicio: Date | null = null;
+
+        for (const sala of salasCompatibles) {
+            const funcionesDeSala = this.funciones()
+                .filter(f => f.sala_id === sala.id)
+                .sort((a, b) => new Date(b.fin).getTime() - new Date(a.fin).getTime());
+
+            const ultimaFuncion = funcionesDeSala[0];
+
+            let inicioCalculado: Date;
+
+            if (ultimaFuncion) {
+                const finUltimaFuncion = new Date(ultimaFuncion.fin);
+
+                if (finUltimaFuncion.getTime() > AHORA.getTime()) {
+                    inicioCalculado = new Date(finUltimaFuncion.getTime() + MARGEN_LIMPIEZA_MS);
+                } else {
+                    inicioCalculado = new Date(AHORA.getTime() + DOS_HORAS_MS);
+                }
+            } else {
+                inicioCalculado = new Date(AHORA.getTime() + DOS_HORAS_MS);
             }
 
-            if (inicioNuevoMs < inicioExistenteMs && finNuevoConLimpiezaMs > inicioExistenteMs) {
-                const inicioSiguiente = new Date(inicioExistenteMs).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                return { 
-                    valido: false, 
-                    motivo: `La nueva función termina su limpieza a las ${new Date(finNuevoConLimpiezaMs).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} hs.` 
-                };
+            if (!mejorFechaInicio || inicioCalculado.getTime() < mejorFechaInicio.getTime()) {
+                mejorFechaInicio = inicioCalculado;
+                mejorSala = sala;
             }
         }
 
-        return { valido: true };
+        if (mejorSala && mejorFechaInicio) {
+            this.salaSeleccionadaId.set(mejorSala.id);
+            this.fechaInicioInput.set(this.formatearParaInput(mejorFechaInicio));
+
+            this.mensajeExito.set(
+                `Asignación automática: ${mejorSala.nombre} (${formatoPeli}) a las ${mejorFechaInicio.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} hs.`
+            );
+        }
     }
 
     async crearFuncion(): Promise<void> {
         this.mensajeError.set(null);
         this.mensajeExito.set(null);
 
-        const { data: { session }, error: sessionError } = await this.supabase.client.auth.getSession();
+        const pelicula = this.peliculaObjeto();
+        const sala = this.salaObjeto();
 
-        if (sessionError || !session) {
-            this.mensajeError.set('Ups, se venció tu sesión. Volvé a iniciar.');
-            return;
-        }
-
-        if (!this.peliculaSeleccionadaId() || !this.salaSeleccionadaId() || !this.fechaInicioInput()) {
-            this.mensajeError.set('Falta completar datos');
+        if (!pelicula || !sala || !this.fechaInicioInput()) {
+            this.mensajeError.set('Por favor completa todos los datos o ejecutá la asignación automática.');
             return;
         }
 
@@ -198,13 +198,7 @@ export class GestionFuncionesComponent implements OnInit {
         if (!finPelicula) return;
 
         if (inicio.getTime() < Date.now()) {
-            this.mensajeError.set('No tenemos el delorean, no se pueden programar funciones en el pasado.');
-            return;
-        }
-
-        const disponibilidad = this.validarDisponibilidadSala(this.salaSeleccionadaId(), inicio, finPelicula);
-        if (!disponibilidad.valido) {
-            this.mensajeError.set(`Conflicto de Horario: ${disponibilidad.motivo}`);
+            this.mensajeError.set('No se pueden programar funciones en el pasado.');
             return;
         }
 
@@ -212,11 +206,11 @@ export class GestionFuncionesComponent implements OnInit {
 
         try {
             const nuevaFuncion = {
-                pelicula_id: this.peliculaSeleccionadaId(),
-                sala_id: this.salaSeleccionadaId(),
-                formato: this.formatoSeleccionado(),
+                pelicula_id: pelicula.id,
+                sala_id: sala.id,
+                formato: (pelicula.formato || '2D').toUpperCase(),
                 idioma: this.idiomaSeleccionado(),
-                precio: this.precioInput(),
+                precio: sala.precio,
                 inicio: inicio.toISOString(),
                 fin: finPelicula.toISOString(),
                 ventas: 0
@@ -228,8 +222,9 @@ export class GestionFuncionesComponent implements OnInit {
 
             if (error) throw error;
 
-            this.mensajeExito.set('¡Función programada!');
+            this.mensajeExito.set(`¡Función programada con éxito en ${sala.nombre}!`);
             this.fechaInicioInput.set('');
+            this.salaSeleccionadaId.set('');
             await this.cargarFunciones();
 
         } catch (error: any) {

@@ -5,6 +5,7 @@ import { SupabaseService } from '../../services/supabase';
 import { PdfService } from '../../services/pdf';
 import { ComprobanteReserva, ReservaEntradasCache } from '../../models/reserva';
 import { ItemCarrito, ProductoCandy } from '../../models/candy';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-candy-bar',
@@ -13,9 +14,11 @@ import { ItemCarrito, ProductoCandy } from '../../models/candy';
   templateUrl: './candy-bar.html',
   styleUrl: './candy-bar.css'
 })
+
 export class CandyBarComponent implements OnInit {
   private supabase = inject(SupabaseService);
   private pdfService = inject(PdfService);
+  private router = inject(Router);
 
   productos = signal<ProductoCandy[]>([]);
   categoriaSeleccionada = signal<string>('Todas');
@@ -292,15 +295,42 @@ export class CandyBarComponent implements OnInit {
         throw new Error('No se pudo registrar la compra en la base de datos.');
       }
 
+      if (entradas && entradas.peliculaId) {
+        const { data: peliculaData } = await this.supabase.client
+          .from('peliculas')
+          .select('ventas_totales')
+          .eq('id', entradas.peliculaId)
+          .single();
+
+        const ventasPrevias = peliculaData?.ventas_totales ?? 0;
+
+        await this.supabase.client
+          .from('peliculas')
+          .update({ ventas_totales: ventasPrevias + entradas.cantidad })
+          .eq('id', entradas.peliculaId);
+      }
+
+      // Formatear la fecha y hora si existen
+      const fechaHorario = entradas?.fechaInicio
+        ? new Date(entradas.fechaInicio).toLocaleString('es-AR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          })
+        : '';
+
+      // Armado del comprobante con la sala formateada y la cantidad explícita
       const datosComprobante: ComprobanteReserva = {
         idReserva: idReservaGenerado,
         peliculaId: entradas?.peliculaId,
         tituloPelicula: entradas?.tituloPelicula,
         formato: entradas?.formato,
         idioma: entradas?.idioma,
-        sala: entradas?.sala,
+        sala: fechaHorario ? `${entradas?.sala} - ${fechaHorario}` : entradas?.sala,
         fechaInicio: entradas?.fechaInicio,
-        cantidadEntradas: entradas?.cantidad,
+        cantidadEntradas: entradas?.cantidad ?? 0,
         asientos: [],
         itemsCandy: this.carrito().map(i => ({
           nombre: i.producto.producto,
@@ -345,10 +375,16 @@ export class CandyBarComponent implements OnInit {
       this.inputCupon.set('');
       this.mostrarModalResumen.set(false);
 
-      this.mensajeExito.set('¡Compra efectuada exitosamente! Tu ticket PDF con el codigo QR ha sido descargado.');
+      this.mensajeExito.set('¡Compra efectuada exitosamente! Tu ticket PDF con el código QR ha sido descargado.');
+
+      // Retardo de 1500ms antes de redirigir
+      setTimeout(() => {
+        this.router.navigate(['/']);
+      }, 1500);
+
     } catch (err) {
       console.error('Error al procesar la compra:', err);
-      alert('Ocurrio un problema al procesar el pago.');
+      alert('Ocurrió un problema al procesar el pago.');
     } finally {
       this.procesando.set(false);
     }
