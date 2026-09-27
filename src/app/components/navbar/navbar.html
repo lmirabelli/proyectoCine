@@ -11,12 +11,15 @@
         </div>
         <nav class="navbar-actions">
             @if (usuario(); as user) {
-            <span class="user-welcome">Hola, {{ user.usuario }}</span>
+            <div class="usuario-data">
+                <div>Hola, {{ user.usuario }}</div>
+                <hr />
+                <div>{{ puntos() }} Puntos</div>
+            </div>
 
             @if (esPersonal()) {
             <button (click)="irAlMenuEmpleados()" class="btn-login">Panel</button>
             }
-
             <button (click)="cerrarSesion()" class="btn-logout">Cerrar Sesión</button>
             } @else {
             <button (click)="irAlLogin()" class="btn-login">Iniciar Sesión</button>

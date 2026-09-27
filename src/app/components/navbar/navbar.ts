@@ -17,6 +17,7 @@ export class NavbarComponent {
     usuario = this.supabase.usuarioActual;
     esAdmin = signal<boolean>(false);
     esPersonal = signal<boolean>(false);
+    puntos = signal<number>(0);
 
     constructor() {
     effect(async () => {
@@ -26,6 +27,9 @@ export class NavbarComponent {
             const esEmpleado = await this.supabase.esEmpleado();
 
             this.esPersonal.set(esAdmin || esEmpleado);
+
+            const pts = await this.supabase.obtenerPuntosUsuario();
+            this.puntos.set(pts);
         } else {
             this.esPersonal.set(false);
         }

@@ -14,7 +14,6 @@ import { Router } from '@angular/router';
   templateUrl: './candy-bar.html',
   styleUrl: './candy-bar.css'
 })
-
 export class CandyBarComponent implements OnInit {
   private supabase = inject(SupabaseService);
   private pdfService = inject(PdfService);
@@ -92,17 +91,6 @@ export class CandyBarComponent implements OnInit {
     await this.evaluarDescuentosAutomaticos();
   }
 
-  private calcularEdad(fechaNacimientoStr: string): number {
-    const hoy = new Date();
-    const nacimiento = new Date(fechaNacimientoStr);
-    let edad = hoy.getFullYear() - nacimiento.getFullYear();
-    const mes = hoy.getMonth() - nacimiento.getMonth();
-    if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) {
-      edad--;
-    }
-    return edad;
-  }
-
   private async evaluarDescuentosAutomaticos(): Promise<void> {
     const usuario = this.supabase.usuarioActual();
 
@@ -161,11 +149,11 @@ export class CandyBarComponent implements OnInit {
         this.cuponAplicado.set(cupon);
         this.mensajeCupon.set(`¡Cupon ${cupon.codigo} del ${cupon.descuento}% aplicado!`);
       } else {
-        this.mensajeCupon.set('El codigo de cupon ingresado no es válido.');
+        this.mensajeCupon.set('El código de cupón ingresado no es válido.');
       }
     } catch (err) {
-      console.error('Error al aplicar el cupon:', err);
-      this.mensajeCupon.set('Error al procesar el cupon.');
+      console.error('Error al aplicar el cupón:', err);
+      this.mensajeCupon.set('Error al procesar el cupón.');
     }
   }
 
@@ -375,19 +363,32 @@ export class CandyBarComponent implements OnInit {
           .eq('id', cupon.id);
       }
 
-      if (usuarioSesion && entradas) {
-        const { data } = await this.supabase.client
+      if (usuarioSesion && usuarioSesion.id) {
+        const { data: perfilActual, error: errorPerfil } = await this.supabase.client
           .from('perfiles')
-          .select('compras')
+          .select('compras, puntos')
           .eq('id', usuarioSesion.id)
-          .single();
+          .maybeSingle();
 
-        const comprasPrevias = data?.compras ?? 0;
+        if (errorPerfil) {
+          console.error('Error al consultar perfil para acumulación de puntos:', errorPerfil);
+        }
 
-        await this.supabase.client
+        const comprasPrevias = perfilActual?.compras ?? 0;
+        const puntosPrevios = perfilActual?.puntos ?? 0;
+        const puntosGanados = Math.floor(this.totalPagar());
+
+        const { error: errorUpdate } = await this.supabase.client
           .from('perfiles')
-          .update({ compras: comprasPrevias + 1 })
+          .update({ 
+            compras: comprasPrevias + 1,
+            puntos: puntosPrevios + puntosGanados
+          })
           .eq('id', usuarioSesion.id);
+
+        if (errorUpdate) {
+          console.error('Error al actualizar puntos y compras en Supabase:', errorUpdate);
+        }
       }
 
       localStorage.removeItem('reserva_entradas_pendiente');
