@@ -1,7 +1,6 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { SupabaseService } from '../../services/supabase';
 import { Pelicula } from '../../models/pelicula';
 import { Sala } from '../../models/sala';
@@ -10,7 +9,7 @@ import { FuncionPelicula } from '../../models/funcion';
 @Component({
     selector: 'app-gestion-funciones',
     standalone: true,
-    imports: [CommonModule, FormsModule, RouterLink],
+    imports: [CommonModule, FormsModule],
     templateUrl: './gestion-funciones.html',
     styleUrl: './gestion-funciones.css',
 })

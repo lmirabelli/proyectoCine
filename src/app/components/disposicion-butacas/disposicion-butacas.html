@@ -1,0 +1,35 @@
+<div class="contenedor-sala">
+    <div class="pantalla">PANTALLA</div>
+
+    <div class="mapa-butacas">
+        @for (filaObj of mapaFilas(); track filaObj.fila) {
+        <div class="fila-linea" [class.fila-adaptada]="filaObj.esEspecial">
+            <span class="letra-fila">{{ filaObj.fila }}</span>
+
+            <div class="distribucion-bloques">
+                @for (bloque of filaObj.bloques; track $index) {
+                <div class="bloque-asientos" [class.bloque-lateral]="$index !== 1"
+                    [class.bloque-central]="$index === 1">
+                    @for (b of bloque; track b.id) {
+                    <button type="button" class="butaca" [class.accesible]="b.esAccesible"
+                        [class.seleccionada]="b.seleccionada" [class.ocupada]="b.ocupada" (click)="seleccionarButaca(b)"
+                        [attr.title]="'Fila ' + b.fila + ' - Asiento ' + b.numero + (b.esAccesible ? ' (Accesible)' : '')">
+                        {{ b.numero }}
+                    </button>
+                    }
+                </div>
+                }
+            </div>
+
+            <span class="letra-fila">{{ filaObj.fila }}</span>
+        </div>
+        }
+    </div>
+
+    <div class="leyenda">
+        <div class="item-leyenda"><span class="butaca muestra"></span> Disponible</div>
+        <div class="item-leyenda"><span class="butaca muestra accesible"></span> Accesible (Fila J y K)</div>
+        <div class="item-leyenda"><span class="butaca muestra seleccionada"></span> Seleccionada</div>
+        <div class="item-leyenda"><span class="butaca muestra ocupada"></span> Ocupada</div>
+    </div>
+</div>

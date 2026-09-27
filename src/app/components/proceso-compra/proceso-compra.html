@@ -1,5 +1,16 @@
 <section class="compra-contenedor">
 
+    @if (restriccionEdadPelicula() > 0) {
+        <div class="alerta-clasificacion">
+            <h4>Película Clasificación +{{ restriccionEdadPelicula() }}</h4>
+            @if (requiereAdulto()) {
+                <p>
+                    Atención: El usuario ingresado es menor a la clasificación requerida. Debe asistir acompañado por un adulto a la sala.
+                </p>
+            }
+        </div>
+    }
+
     <div class="grupo-opciones">
         <label>Seleccionar Función (Hoy y Mañana)</label>
         @if (cargandoFunciones()) {
@@ -60,4 +71,15 @@
             {{ procesando() ? 'Guardando...' : 'Continuar' }}
         </button>
     </div>
+    @if (funcionSeleccionadaId()) {
+    <div class="grupo-opciones">
+        <label>Selección de Asientos</label>
+        <app-disposicion-butacas 
+            [funcionId]="funcionSeleccionadaId()!"
+            [salaId]="funcionObjeto()?.sala_id || funcionObjeto()?.salas?.id || ''"
+            [cantidadMaxSeleccionable]="cantidadEntradas()"
+            (seleccionCambiada)="onButacasCambiadas($event)">
+        </app-disposicion-butacas>
+    </div>
+}
 </section>

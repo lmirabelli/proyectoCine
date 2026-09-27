@@ -1,0 +1,109 @@
+.contenedor-sala {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    background: var(--color-1);
+    padding: 24px;
+    border-radius: 8px;
+    color: var(--color-blanco);
+    overflow-x: auto;
+
+    .pantalla {
+        width: 80%;
+        text-align: center;
+        background: linear-gradient(180deg, #555 0%, #222 100%);
+        color: var(--color-2);
+        padding: 8px;
+        border-radius: 4px;
+        font-family: var(--fuente-destacada);
+        letter-spacing: 4px;
+        box-shadow: 0 4px 10px rgba(255, 255, 255, 0.2);
+    }
+
+    .mapa-butacas {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+
+        .fila-linea {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            .letra-fila {
+                font-weight: bold;
+                width: 20px;
+                text-align: center;
+                color: #aaa;
+            }
+
+            .distribucion-bloques {
+                display: flex;
+                gap: 24px;
+
+                .bloque-asientos {
+                    display: flex;
+                    gap: 6px;
+                }
+            }
+
+            &.fila-adaptada .letra-fila {
+                color: var(--color-2);
+            }
+        }
+    }
+
+    .butaca {
+        width: 28px;
+        height: 28px;
+        border: 1px solid var(--color-blanco-45);
+        border-radius: 4px;
+        background-color: var(--color-blanco-45);
+        color: var(--color-blanco);
+        font-size: 10px;
+        font-family: var(--fuente-titulo);
+        cursor: pointer;
+        transition: all 0.2s;
+
+        &:hover:not(.ocupada) {
+            background-color: #444;
+        }
+
+        &.accesible {
+            border: 2px solid var(--color-2);
+            background-color: var(--color-5);
+        }
+
+        &.seleccionada {
+            background-color: #28a745 !important;
+            color: #fff;
+            border-color: #1e7e34;
+        }
+
+        &.ocupada {
+            background-color: #dc3545;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        &.muestra {
+            pointer-events: none;
+        }
+    }
+
+    .leyenda {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        justify-content: center;
+        font-size: 12px;
+        margin-top: 10px;
+
+        .item-leyenda {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+    }
+}

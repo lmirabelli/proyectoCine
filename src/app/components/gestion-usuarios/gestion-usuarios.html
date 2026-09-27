@@ -1,0 +1,63 @@
+<div class="gestion-contenedor">
+    @if (cargando()) {
+    <div class="alerta-cargando">Verificando credenciales de administrador...</div>
+    } @else if (!esAdmin()) {
+    <div class="alerta-no-autorizado">
+        <h2>Acceso Restringido</h2>
+        <p>Se requieren privilegios de <strong>administrador</strong> para acceder a este panel.</p>
+    </div>
+    } @else {
+    <h2>Gestión de Usuarios</h2>
+
+    <div class="tabla">
+        <table class="tabla-usuarios">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th class="email">Email</th>
+                    <th>Usuario</th>
+                    <th>Rol</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (usr of usuarios(); track usr.id) {
+                <tr [class.fila-modificada]="usr.modificado">
+                    <td>{{ usr.nombre || '-' }}</td>
+                    <td>{{ usr.apellido || '-' }}</td>
+                    <td class="email">{{ usr.email || '-' }}</td>
+                    <td>{{ usr.usuario }}</td>
+                    <td>
+                        <select [ngModel]="usr.rol" (ngModelChange)="onSeleccionarRol(usr, $event)"
+                            [disabled]="procesandoId() === usr.id">
+                            @for (r of rolesDisponibles; track r) {
+                            <option [value]="r">{{ r | uppercase }}</option>
+                            }
+                        </select>
+                    </td>
+                    <td>
+                        <div class="acciones-contenedor">
+                            <button type="button" class="btn-guardar"
+                                [disabled]="!usr.modificado || procesandoId() === usr.id"
+                                (click)="guardarRol(usr)">
+                                {{ procesandoId() === usr.id ? '🗃️' : '💾' }}
+                            </button>
+
+                            <button type="button" class="btn-eliminar" [disabled]="procesandoId() === usr.id"
+                                (click)="eliminarPerfil(usr)">
+                                ❌
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                } @empty {
+                <tr>
+                    <td colspan="6" class="txt-vacio">No hay usuarios registrados en la base de datos.</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    }
+</div>

@@ -317,13 +317,31 @@ export class CandyBarComponent implements OnInit {
 
       const fechaHorario = entradas?.fechaInicio
         ? new Date(entradas.fechaInicio).toLocaleString('es-AR', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-          })
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        })
         : '';
+
+      if (entradas && entradas.asientos && entradas.asientos.length > 0) {
+        const registrosOcupacion = entradas.asientos.map(asiento => ({
+          funcion_id: entradas.funcionId,
+          sala_id: entradas.salaId,
+          asiento: asiento,
+          codigo_reserva: idReservaGenerado,
+          usuario_id: usuarioSesion?.id || null
+        }));
+
+        const { error: errorAsientos } = await this.supabase.client
+          .from('entradas_reservadas')
+          .insert(registrosOcupacion);
+
+        if (errorAsientos) {
+          console.error('Error al registrar asientos ocupados:', errorAsientos);
+        }
+      }
 
       const datosComprobante: ComprobanteReserva = {
         idReserva: idReservaGenerado,
@@ -334,7 +352,8 @@ export class CandyBarComponent implements OnInit {
         sala: fechaHorario ? `${entradas?.sala} - ${fechaHorario}` : entradas?.sala,
         fechaInicio: entradas?.fechaInicio,
         cantidadEntradas: entradas?.cantidad ?? 0,
-        asientos: [],
+        asientos: entradas?.asientos ?? [],
+        requiereAdulto: entradas?.requiereAdulto ?? false,
         itemsCandy: this.carrito().map(i => ({
           nombre: i.producto.producto,
           cantidad: i.cantidad,

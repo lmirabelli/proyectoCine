@@ -8,23 +8,6 @@ import { ComprobanteReserva } from '../models/reserva';
 })
 export class PdfService {
 
-    private async cargarImagenBase64(url: string): Promise<string> {
-        return new Promise((resolve, reject) => {
-            const img = new Image();
-            img.crossOrigin = 'Anonymous';
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                canvas.width = img.width;
-                canvas.height = img.height;
-                const ctx = canvas.getContext('2d');
-                ctx?.drawImage(img, 0, 0);
-                resolve(canvas.toDataURL('image/png'));
-            };
-            img.onerror = (err) => reject(err);
-            img.src = url;
-        });
-    }
-
     async generarComprobantePDF(datos: ComprobanteReserva): Promise<void> {
         const doc = new jsPDF({
             orientation: 'portrait',
@@ -41,16 +24,6 @@ export class PdfService {
         const qrImageBase64 = await QRCode.toDataURL(qrData, { margin: 1 });
 
         let posY = 10;
-
-        // ------------------------------------------------------- LOGO
-        try {
-            const logoBase64 = await this.cargarImagenBase64('/logo.png');
-            doc.addImage(logoBase64, 'PNG', 41.5, posY, 12, 12);
-            posY += 25;
-        } catch (e) {
-            console.warn('No se pudo cargar el logo para el PDF:', e);
-            posY += 2;
-        }
 
         // ----------------------------------------------------- ENCABEZADO 
         doc.setFont('helvetica', 'bolditalic');
@@ -112,9 +85,19 @@ export class PdfService {
                 doc.text(datos.asientos.join(', '), 32, posY);
                 posY += 5;
             }
+
+            if (datos.requiereAdulto) {
+                posY += 2;
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(8);
+                doc.setTextColor(200, 0, 0);
+                doc.text('* Debe asistir acompañado por un adulto *', 52.5, posY, { align: 'center' });
+                doc.setTextColor(0, 0, 0);
+                posY += 5;
+            }
         }
 
-        // ----------------------------------------------------------- COSITAS RICAS DEL CANDY
+        // ----------------------------------------------------------- CANDY
         if (datos.itemsCandy && datos.itemsCandy.length > 0) {
             posY += 2;
             doc.setFont('helvetica', 'bold');

@@ -1,0 +1,31 @@
+.gestion-contenedor{
+    width: 95%;
+    margin: 0 auto;
+    .tabla{
+    .tabla-usuarios{
+        margin: 12px auto;
+        thead,tbody{
+            tr{
+                th,td{
+                    width: 16%;
+                    text-align: center;
+                    border: 1px solid var(--color-blanco-20);
+                    border-radius: 4px;
+                    background: var(--color-blanco-20);
+                    font-family: var(--fuente-sans);
+                    text-transform: capitalize;
+                    color: var(--color-2);
+                    .acciones-contenedor{
+                        button{
+                            margin: 2px;
+                        }
+                    }
+                }
+                .email{
+                    width: 30%;
+                }
+            }
+        }
+    }
+}
+}

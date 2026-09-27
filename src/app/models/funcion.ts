@@ -7,6 +7,12 @@ export interface FuncionPelicula {
     precio: number;
     inicio: string;
     fin: string;
-    peliculas?: { titulo: string };
-    salas?: { nombre: string; formato?: string };
+    salas?: {
+        id?: string;
+        nombre: string;
+        formato?: string;
+    };
+    peliculas?: {
+        titulo: string;
+    };
 }

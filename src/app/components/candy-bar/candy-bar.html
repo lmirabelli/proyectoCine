@@ -21,6 +21,12 @@
             <span class="badge">{{ entradas.idioma }}</span>
         </p>
         <p><strong>Cantidad:</strong> {{ entradas.cantidad }} entrada(s)</p>
+        <p>
+            <strong>Asientos:</strong>
+            @for (asiento of entradas.asientos; track asiento) {
+            <span class="badge">{{ asiento }}</span>
+            }
+        </p>
         <p class="precio-entradas"><strong>Subtotal Entradas:</strong> ${{ entradas.montoTotal }}</p>
     </section>
     }

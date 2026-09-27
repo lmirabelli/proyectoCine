@@ -13,10 +13,10 @@
     --color-rojo: #b51818;
     --color-rojazo: #ff4646;
     --color-1: #070C2B;
-    --color-2: #7179AB;
+    --color-2: #00bcd4;
     --color-3: #80713F;
     --color-4: #2B2307;
-    --color-5: #2C346B;
+    --color-5: #1a3a4a;
 
     --iluminacion: inset 2px 2px 4px 1px #F5C70045, inset -2px -2px 4px 1px #00000045;
 }
@@ -75,5 +75,14 @@ hr{
     &:hover{
         background-color: var(--color-rojazo);
         box-shadow: 0 0 8px 4px var(--color-rojazo);
+    }
+}
+.alerta-no-autorizado{
+    p{
+        width: 100%;
+        text-align: center;
+        color: var(--color-blanco);
+        padding: 12px;
+        background-color: var(--color-rojo);
     }
 }

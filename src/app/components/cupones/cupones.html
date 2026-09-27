@@ -1,4 +1,9 @@
-@if (esAdmin()) {
+@if (!esAdmin()) {
+<div class="alerta-no-autorizado">
+    <h2>Acceso Restringido</h2>
+    <p>Se requieren privilegios de <strong>administrador</strong> para dar de alta cupones y descuentos.</p>
+</div>
+} @else if (esAdmin()) {
 <div class="panel-promociones-container">
 
     <section class="card-promocion">

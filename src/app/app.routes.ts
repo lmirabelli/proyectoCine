@@ -18,5 +18,6 @@ export const routes: Routes = [
     { path: 'candybar', component: CandyBarComponent },
     {path: 'despacho',loadComponent: () => import('./components/despacho-candy/despacho-candy').then(m => m.DespachoCandyComponent),canActivate: [empleadoGuard]},
     {path: 'gestionPeliculas',loadComponent: () => import('./components/gestion-peliculas/gestion-peliculas').then(m => m.GestionPeliculasComponent),canActivate: [empleadoGuard]},
+    {path: 'gestionUsuarios',loadComponent: () => import('./components/gestion-usuarios/gestion-usuarios').then(m => m.GestionUsuariosComponent),canActivate: [empleadoGuard]},
     { path: '**', redirectTo: '' }
 ];

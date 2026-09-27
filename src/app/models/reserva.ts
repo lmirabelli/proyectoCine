@@ -10,7 +10,6 @@ export interface ComprobanteReserva {
     montoTotal: number;
     fechaCompra: string;
     codigoQR: string;
-
     peliculaId?: string;
     tituloPelicula?: string;
     formato?: string;
@@ -19,7 +18,7 @@ export interface ComprobanteReserva {
     fechaInicio?: string;
     cantidadEntradas?: number;
     asientos?: string[];
-
+    requiereAdulto?: boolean;
     itemsCandy?: ItemCandyPDF[];
 }
 
@@ -27,6 +26,7 @@ export interface ReservaEntradasCache {
     peliculaId: string;
     tituloPelicula: string;
     funcionId: string;
+    salaId?: string | null;
     formato: string;
     idioma: string;
     cantidad: number;
@@ -34,6 +34,8 @@ export interface ReservaEntradasCache {
     sala: string;
     fechaInicio: string;
     fechaReserva: string;
+    requiereAdulto?: boolean;
+    asientos: string[];
 }
 
 export interface ItemComprobante {
