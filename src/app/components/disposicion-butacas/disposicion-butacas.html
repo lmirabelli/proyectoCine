@@ -2,26 +2,26 @@
     <div class="pantalla">PANTALLA</div>
 
     <div class="mapa-butacas">
-        @for (filaObj of mapaFilas(); track filaObj.fila) {
-        <div class="fila-linea" [class.fila-adaptada]="filaObj.esEspecial">
-            <span class="letra-fila">{{ filaObj.fila }}</span>
+        @for (itemFila of mapaFilas(); track itemFila.fila) {
+        <div class="fila-linea" [class.fila-vip]="itemFila.esEspecial" [class.fila-adaptada]="itemFila.esEspecial">
+
+            <span class="letra-fila">{{ itemFila.fila }}</span>
 
             <div class="distribucion-bloques">
-                @for (bloque of filaObj.bloques; track $index) {
-                <div class="bloque-asientos" [class.bloque-lateral]="$index !== 1"
-                    [class.bloque-central]="$index === 1">
-                    @for (b of bloque; track b.id) {
-                    <button type="button" class="butaca" [class.accesible]="b.esAccesible"
-                        [class.seleccionada]="b.seleccionada" [class.ocupada]="b.ocupada" (click)="seleccionarButaca(b)"
-                        [attr.title]="'Fila ' + b.fila + ' - Asiento ' + b.numero + (b.esAccesible ? ' (Accesible)' : '')">
-                        {{ b.numero }}
+                @for (bloque of itemFila.bloques; track $index) {
+                <div class="bloque-asientos">
+                    @for (butaca of bloque; track butaca.id) {
+                    <button type="button" class="butaca" [class.ocupada]="butaca.ocupada"
+                        [class.seleccionada]="butaca.seleccionada" [class.accesible]="butaca.esAccesible"
+                        [disabled]="butaca.ocupada" (click)="seleccionarButaca(butaca)">
+                        {{ butaca.numero }}
                     </button>
                     }
                 </div>
                 }
             </div>
 
-            <span class="letra-fila">{{ filaObj.fila }}</span>
+            <span class="letra-fila">{{ itemFila.fila }}</span>
         </div>
         }
     </div>

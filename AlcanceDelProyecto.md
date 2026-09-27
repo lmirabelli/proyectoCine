@@ -36,13 +36,13 @@
 ## E-Mail 6 
 
 - Restriccion de Edad: Control de fecha de nacimiento contra la calificacion de la pelicula (+13 / +18). Bloqueo de venta autonoma e impresion de la leyenda "Debe asistir acompañado por un adulto" en el ticket. OK
-- Mapa de Sala Reestructurado: Modificacion del layout a 20 filas (A-T). Asignacion de filas J y K para butacas adaptadas/accesibles en bloques de 2, 10 y 2 asientos.
-- Sincronizacion en Tiempo Real: Visualizacion en tiempo real (via Supabase Realtime) de butacas ocupadas mientras se realiza la compra, con resaltado grafico especial para las filas J y K.
+- Mapa de Sala Reestructurado: Modificacion del layout a 20 filas (A-T). Asignacion de filas J y K para butacas adaptadas/accesibles en bloques de 2, 10 y 2 asientos. OK
+- Sincronizacion en Tiempo Real: Visualizacion en tiempo real (via Supabase Realtime) de butacas ocupadas mientras se realiza la compra, con resaltado grafico especial para las filas J y K. OK
 
 ## E-Mail 7
 
-- Optimizacion UX: Rediseño de selectores de fecha y hora para evitar scroll continuo.
-- Reporte Basico de Facturacion: Modulo administrativo que expone el total facturado diario y la cantidad de entradas vendidas.
+- Optimizacion UX: Rediseño de selectores de fecha y hora para evitar scroll continuo. (NO FUE NECESARIO)
+- Reporte Basico de Facturacion: Modulo administrativo que expone el total facturado diario y la cantidad de entradas vendidas. OK
 
 ## E-Mail 8
 

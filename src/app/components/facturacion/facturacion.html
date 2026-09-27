@@ -1,0 +1,100 @@
+@if (esAdmin()) {
+<section class="facturacion-contenedor">
+    <header class="encabezado">
+        <h2>Reporte de Facturación</h2>
+    </header>
+
+    <div class="selector-dias-contenedor">
+        @for (dia of diasDisponibles(); track dia.fechaIso) {
+        <button type="button" class="btn-dia" [class.activo]="dia.fechaIso === fechaSeleccionadaIso()"
+            (click)="seleccionarDia(dia.fechaIso)">
+            <span class="nombre-dia">{{ dia.nombreDia }}</span>
+            <span class="numero-dia">{{ dia.numeroDia }}</span>
+        </button>
+        }
+    </div>
+
+    @if (cargando()) {
+    <div class="cargando-box">Cargando reporte de ventas...</div>
+    } @else {
+
+    <div class="resumen-tarjetas">
+        <div class="tarjeta-totales">
+            <span>Cantidad de Entradas</span>
+            <strong>{{ totalEntradasVendidas() }}</strong>
+        </div>
+        <div class="tarjeta-totales">
+            <span>Recaudacion Cine</span>
+            <strong>${{ totalFacturadoEntradas() }}</strong>
+        </div>
+        <div class="tarjeta-totales">
+            <span>Recaudacion Candy</span>
+            <strong>${{ totalFacturadoCandy() }}</strong>
+        </div>
+        <div class="tarjeta-totales destacado">
+            <span>Facturado Total Diario</span>
+            <strong>${{ totalFacturadoDiarioGeneral() }}</strong>
+        </div>
+    </div>
+
+    <div class="seccion-reporte">
+        <h3>Desgloce por Pelicula</h3>
+        <div class="tabla-responsiva">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Película</th>
+                        <th>Formato y Sala</th>
+                        <th>Entradas Vendidas</th>
+                        <th>Total ($)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (item of ventasPeliculas(); track item.titulo + item.formatoYSala) {
+                    <tr>
+                        <td><strong>{{ item.titulo }}</strong></td>
+                        <td><span class="badge">{{ item.formatoYSala }}</span></td>
+                        <td>{{ item.cantidadEntradas }}</td>
+                        <td class="monto">${{ item.totalRecaudado }}</td>
+                    </tr>
+                    } @empty {
+                    <tr>
+                        <td colspan="4" class="txt-vacio">No se registraron ventas de entradas en esta fecha.</td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="seccion-reporte">
+        <h3>Desgloce de Candy</h3>
+        <div class="tabla-responsiva">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Producto / Combo</th>
+                        <th>Cantidad Vendida</th>
+                        <th>Total ($)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (snack of ventasCandy(); track snack.nombreProducto) {
+                    <tr>
+                        <td><strong>{{ snack.nombreProducto }}</strong></td>
+                        <td>{{ snack.cantidadVendida }}</td>
+                        <td class="monto">${{ snack.totalRecaudado }}</td>
+                    </tr>
+                    } @empty {
+                    <tr>
+                        <td colspan="3" class="txt-vacio">No se registraron ventas de Candy Bar en esta fecha.</td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    }
+</section>
+}

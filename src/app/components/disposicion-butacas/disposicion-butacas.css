@@ -31,6 +31,22 @@
             align-items: center;
             gap: 12px;
 
+            &.fila-vip {
+                background: rgba(255, 193, 7, 0.08);
+                border: 1px dashed #ffc107;
+                padding: 4px 8px;
+                border-radius: 6px;
+
+                .letra-fila {
+                    color: #ffc107;
+                    font-weight: 800;
+                }
+
+                .butaca:not(.ocupada):not(.seleccionada) {
+                    border-color: #ffc107;
+                }
+            }
+
             .letra-fila {
                 font-weight: bold;
                 width: 20px;
