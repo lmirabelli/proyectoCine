@@ -3,12 +3,11 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { SupabaseService } from '../../services/supabase';
-import { ProcesoCompraComponent } from '../proceso-compra/proceso-compra';
 
 @Component({
     selector: 'app-pelicula-id',
     standalone: true,
-    imports: [CommonModule, FormsModule, RouterLink, ProcesoCompraComponent],
+    imports: [CommonModule, FormsModule, RouterLink ],
     templateUrl: './pelicula-id.html',
     styleUrl: './pelicula-id.css'
 })

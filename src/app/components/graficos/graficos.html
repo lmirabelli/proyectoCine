@@ -1,0 +1,35 @@
+<div class="contenedor-graficos">
+    <h1>Estadísticas y Reportes</h1>
+
+    <div class="selector-opciones">
+        <button 
+            type="button" 
+            [class.activo]="tipoSeleccionado() === 'ventas_semana'"
+            (click)="cambiarTipo('ventas_semana')">
+            Ventas Entradas (Semana)
+        </button>
+
+        <button 
+            type="button" 
+            [class.activo]="tipoSeleccionado() === 'ventas_mes_peliculas'"
+            (click)="cambiarTipo('ventas_mes_peliculas')">
+            Ventas Películas (Mes)
+        </button>
+
+        <button 
+            type="button" 
+            [class.activo]="tipoSeleccionado() === 'candy_mes'"
+            (click)="cambiarTipo('candy_mes')">
+            Productos Candy (Mes)
+        </button>
+    </div>
+
+    <div class="area-grafico">
+        @if (cargando()) {
+            <div class="cargando-overlay">
+                <p>Cargando estadísticas...</p>
+            </div>
+        }
+        <canvas #chartCanvas></canvas>
+    </div>
+</div>

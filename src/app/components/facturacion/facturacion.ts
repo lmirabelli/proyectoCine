@@ -2,33 +2,13 @@ import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { SupabaseService } from '../../services/supabase';
-
-interface VentaPelicula {
-  titulo: string;
-  formatoYSala: string;
-  cantidadEntradas: number;
-  totalRecaudado: number;
-}
-
-interface VentaProducto {
-  nombreProducto: string;
-  marca?: string;
-  tamano?: string;
-  cantidadVendida: number;
-  totalRecaudado: number;
-}
-
-interface DiaSelector {
-  fechaIso: string;
-  nombreDia: string;
-  numeroDia: string;
-  esHoy: boolean;
-}
+import { GraficosComponent } from '../graficos/graficos';
+import { DiaSelector, VentaPelicula, VentaProducto } from '../../models/facturacion';
 
 @Component({
   selector: 'app-facturacion',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, GraficosComponent],
   templateUrl: './facturacion.html',
   styleUrl: './facturacion.css'
 })
