@@ -7,7 +7,7 @@
         <p>Se requieren privilegios de <strong>administrador</strong> para dar de alta películas.</p>
     </div>
     } @else {
-    <h1>Alta de Nueva Película</h1>
+    <h1>{{ peliculaEdicionId() ? 'Edición de Película' : 'Alta de Nueva Película' }}</h1>
 
     <section class="card-formulario">
         <form (submit)="$event.preventDefault(); guardarPelicula()" class="grid-form">
@@ -20,6 +20,24 @@
             <div class="campo campo-full">
                 <label for="sinopsis">Sinopsis</label>
                 <textarea id="sinopsis" rows="4" [ngModel]="sinopsis()" (ngModelChange)="sinopsis.set($event)" name="sinopsis" placeholder="Descripción detallada de la trama..." required></textarea>
+            </div>
+
+            <div class="campo campo-full">
+                <label>Géneros</label>
+                <div class="contenedor-checkboxes">
+                    @for (genero of generosDisponibles(); track genero.id) {
+                        <label class="checkbox-label">
+                            <input 
+                                type="checkbox" 
+                                [value]="genero.id"
+                                [checked]="generosSeleccionadosIds().includes(genero.id)"
+                                (change)="onGeneroCheckboxChange(genero.id, $any($event.target).checked)" />
+                            <span class="genero-nombre">{{ genero.nombre }}</span>
+                        </label>
+                    } @empty {
+                        <p class="txt-vacio">Cargando géneros...</p>
+                    }
+                </div>
             </div>
 
             <div class="campo">
@@ -46,13 +64,22 @@
             </div>
 
             <div class="campo">
+                <label for="disponibilidad">Disponibilidad</label>
+                <select id="disponibilidad" [ngModel]="disponibilidad()" (ngModelChange)="disponibilidad.set($event)" name="disponibilidad">
+                    @for (d of opcionesDisponibilidad; track d) {
+                    <option [value]="d">{{ d | titlecase }}</option>
+                    }
+                </select>
+            </div>
+
+            <div class="campo">
                 <label for="estreno">Año de Estreno</label>
                 <input type="number" id="estreno" [ngModel]="estreno()" (ngModelChange)="estreno.set($event)" name="estreno" min="1900" max="2100" />
             </div>
 
             <div class="campo campo-full">
                 <label for="afiche">Afiche / Poster (Archivo Local)</label>
-                <input type="file" id="afiche" (change)="onArchivoSeleccionado($event)" accept="image/*" required />
+                <input type="file" id="afiche" (change)="onArchivoSeleccionado($event)" accept="image/*" [required]="!peliculaEdicionId()" />
             </div>
 
             @if (vistaPreviaUrl(); as preview) {
@@ -62,9 +89,14 @@
             </div>
             }
 
-            <button type="submit" [disabled]="guardando()" class="btn-guardar campo-full">
-                {{ guardando() ? 'Subiendo afiche y guardando...' : 'Guardar Película' }}
-            </button>
+            <div class="campo-full acciones-formulario">
+                <button type="submit" [disabled]="guardando()" class="btn-guardar">
+                    {{ guardando() ? 'Guardando...' : (peliculaEdicionId() ? 'Actualizar Película' : 'Guardar Película') }}
+                </button>
+                @if (peliculaEdicionId()) {
+                    <button type="button" class="btn-cancelar" (click)="limpiarFormulario()">Cancelar Edición</button>
+                }
+            </div>
         </form>
 
         @if (mensajeError()) {
@@ -75,5 +107,59 @@
         <div class="banner-exito">{{ mensajeExito() }}</div>
         }
     </section>
+
+    <div class="seccion-listado">
+        <h2>Todas las peliculas</h2>
+        <div class="listado-peliculas">
+            <div class="pelicula-item">
+                    <div class="miniatura">
+                    </div>
+                    <div class="titulo">
+                        titulo
+                    </div>
+                    <div class="info">
+                        Duracion
+                    </div>
+                    <div class="info">
+                        Formato
+                    </div>
+                    <div class="info">
+                        Estreno
+                    </div>
+                    <div class="info">
+                        disponibilidad
+                    </div>
+                    <div class="btn">
+                    </div>
+                </div>
+            @for (p of peliculasListado(); track p.id) {
+                <div class="pelicula-item">
+                    <div class="miniatura">
+                        <img [src]="p.afiche_url" [alt]="p.titulo" class="img-miniatura" />
+                    </div>
+                    <div class="titulo">
+                        {{ p.titulo }}
+                    </div>
+                    <div class="info">
+                        {{ p.duracion_minutos }} min
+                    </div>
+                    <div class="info">
+                        {{ p.formato }}
+                    </div>
+                    <div class="info">
+                        {{ p.estreno }}
+                    </div>
+                    <div class="info">
+                        {{ p.disponibilidad }}
+                    </div>
+                    <button type="button" class="btn btn-editar" (click)="seleccionarParaEditar(p)">
+                        Editar
+                    </button>
+                </div>
+            } @empty {
+                <p class="txt-vacio">No hay películas registradas en el sistema.</p>
+            }
+        </div>
+    </div>
     }
 </div>

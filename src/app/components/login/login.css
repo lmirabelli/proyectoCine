@@ -15,33 +15,70 @@
             h2 {
                 color: var(--color-3);
             }
-            .invitado-container{
+
+            .invitado-container {
                 margin-top: 24px;
             }
-            .campo{
-                margin: 2px 0;
-            }
-            .campo, .invitado-container {
+
+            .campo {
+                margin: 6px 0 2px 0;
                 display: flex;
                 justify-content: space-around;
                 align-items: center;
-                p{
+
+                p {
                     color: var(--color-blanco);
                 }
+
                 label {
                     color: var(--color-blanco);
                     font-family: var(--fuente-sans);
-                    width: 40%
-                };
+                    width: 40%;
+                }
 
-                input {
+                input, select {
                     background-color: var(--color-blanco-20);
-                    border: 0;
+                    border: 1px solid transparent;
                     font-family: var(--fuente-sans);
                     text-align: center;
                     width: 50%;
+                    padding: 6px;
                     border-radius: 8px;
+                    color: var(--color-blanco);
+                    outline: none;
+                    box-sizing: border-box;
+
+                    &.input-error {
+                        border-color: #ff4d4d;
+                        background-color: rgba(255, 0, 0, 0.15);
+                    }
+
+                    option {
+                        background-color: #222;
+                        color: #fff;
+                    }
                 }
+
+                .fecha-options {
+                    width: 50%;
+                    display: flex;
+                    gap: 4px;
+
+                    select {
+                        width: 33.3%;
+                        font-size: 0.8rem;
+                        padding: 6px 2px;
+                    }
+                }
+            }
+
+            .msg-error {
+                display: block;
+                color: #ff6b6b;
+                font-size: 0.75rem;
+                text-align: right;
+                margin-right: 10%;
+                font-family: var(--fuente-sans);
             }
 
             .btn-submit, .btn-invitado {
@@ -50,17 +87,23 @@
                 border: none;
                 font-weight: 600;
                 cursor: pointer;
-                transition: background-color 0.2s ease;
+                transition: background-color 0.2s ease, opacity 0.2s ease;
+                margin-top: 10px;
+
+                &:disabled {
+                    opacity: 0.5;
+                    cursor: not-allowed;
+                }
             }
 
             .btn-submit {
                 background-color: var(--color-3);
                 color: var(--color-blanco);
                 font-family: var(--fuente-sans);
-            }
 
-            .btn-submit:hover {
-                background-color: var(--color-4);
+                &:hover:not(:disabled) {
+                    background-color: var(--color-4);
+                }
             }
         }
     }

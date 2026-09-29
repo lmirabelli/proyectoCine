@@ -22,9 +22,9 @@
             </div>
 
             <p class="sinopsis">{{ p.sinopsis }}</p>
+            <button [routerLink]="['/proceso-compra', p.id]" class="btn-comprar">Comprar Entradas</button>
         </div>
     </div>
-    <app-proceso-compra [peliculaId]="p.id" [tituloPelicula]="p.titulo"></app-proceso-compra>
     <section class="resenas-container">
         <h2>Calificaciones y Reseñas</h2>
 

@@ -1,11 +1,9 @@
-import { Component, OnInit, Output, EventEmitter, inject, signal } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SupabaseService } from '../../services/supabase';
 import { Genero } from '../../models/pelicula';
 import { FiltroBusqueda } from '../../models/busqueda';
-
-
 
 @Component({
   selector: 'app-buscador',

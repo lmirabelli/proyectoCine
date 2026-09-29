@@ -7,14 +7,22 @@
                 <div class="campo">
                     <label for="login-email">Correo Electrónico</label>
                     <input type="email" id="login-email" placeholder="ejemplo@correo.com" [ngModel]="loginEmail()"
-                        (ngModelChange)="loginEmail.set($event)" name="loginEmail" required />
+                        (ngModelChange)="loginEmail.set($event); marcarTocado('loginEmail')" name="loginEmail" required
+                        [class.input-error]="touched()['loginEmail'] && errLoginEmail()" />
                 </div>
+                @if (touched()['loginEmail'] && errLoginEmail()) {
+                    <span class="msg-error">{{ errLoginEmail() }}</span>
+                }
 
                 <div class="campo">
                     <label for="login-password">Contraseña</label>
                     <input type="password" id="login-password" placeholder="••••••••" [ngModel]="loginPassword()"
-                        (ngModelChange)="loginPassword.set($event)" name="loginPassword" required />
+                        (ngModelChange)="loginPassword.set($event); marcarTocado('loginPassword')" name="loginPassword" required
+                        [class.input-error]="touched()['loginPassword'] && errLoginPassword()" />
                 </div>
+                @if (touched()['loginPassword'] && errLoginPassword()) {
+                    <span class="msg-error">{{ errLoginPassword() }}</span>
+                }
 
                 <button type="submit" [disabled]="cargando()" class="btn-submit">
                     {{ cargando() ? 'Cargando...' : 'Ingresar' }}
@@ -36,43 +44,85 @@
                 <div class="campo">
                     <label for="reg-nombre">Nombre</label>
                     <input type="text" id="reg-nombre" placeholder="Esteban" [ngModel]="regNombre()"
-                        (ngModelChange)="regNombre.set($event)" name="regNombre" required />
+                        (ngModelChange)="regNombre.set($event); marcarTocado('regNombre')" name="regNombre" required
+                        [class.input-error]="touched()['regNombre'] && errRegNombre()" />
                 </div>
+                @if (touched()['regNombre'] && errRegNombre()) {
+                    <span class="msg-error">{{ errRegNombre() }}</span>
+                }
 
                 <div class="campo">
                     <label for="reg-apellido">Apellido</label>
                     <input type="text" id="reg-apellido" placeholder="Quito" [ngModel]="regApellido()"
-                        (ngModelChange)="regApellido.set($event)" name="regApellido" required />
+                        (ngModelChange)="regApellido.set($event); marcarTocado('regApellido')" name="regApellido" required
+                        [class.input-error]="touched()['regApellido'] && errRegApellido()" />
                 </div>
+                @if (touched()['regApellido'] && errRegApellido()) {
+                    <span class="msg-error">{{ errRegApellido() }}</span>
+                }
 
                 <div class="campo">
                     <label for="reg-usuario">Usuario</label>
                     <input type="text" id="reg-usuario" placeholder="EstebanQuito" [ngModel]="regUsuario()"
-                        (ngModelChange)="regUsuario.set($event)" name="regUsuario" required />
+                        (ngModelChange)="regUsuario.set($event); marcarTocado('regUsuario')" name="regUsuario" required
+                        [class.input-error]="touched()['regUsuario'] && errRegUsuario()" />
                 </div>
+                @if (touched()['regUsuario'] && errRegUsuario()) {
+                    <span class="msg-error">{{ errRegUsuario() }}</span>
+                }
 
                 <div class="campo">
                     <label for="reg-email">Correo Electrónico</label>
                     <input type="email" id="reg-email" placeholder="ejemplo@correo.com" [ngModel]="regEmail()"
-                        (ngModelChange)="regEmail.set($event)" name="regEmail" required />
+                        (ngModelChange)="regEmail.set($event); marcarTocado('regEmail')" name="regEmail" required
+                        [class.input-error]="touched()['regEmail'] && errRegEmail()" />
                 </div>
+                @if (touched()['regEmail'] && errRegEmail()) {
+                    <span class="msg-error">{{ errRegEmail() }}</span>
+                }
 
                 <div class="campo">
                     <label for="reg-password">Contraseña</label>
                     <input type="password" id="reg-password" placeholder="••••••••" [ngModel]="regPassword()"
-                        (ngModelChange)="regPassword.set($event)" name="regPassword" required />
+                        (ngModelChange)="regPassword.set($event); marcarTocado('regPassword')" name="regPassword" required
+                        [class.input-error]="touched()['regPassword'] && errRegPassword()" />
                 </div>
+                @if (touched()['regPassword'] && errRegPassword()) {
+                    <span class="msg-error">{{ errRegPassword() }}</span>
+                }
 
                 <div class="campo">
-                    <label for="reg-fecha">Fecha de Nacimiento</label>
-                    <input type="date" id="reg-fecha" [ngModel]="regFechaNacimiento()"
-                        (ngModelChange)="regFechaNacimiento.set($event)" name="regFechaNacimiento" required />
+                    <label>Fecha de Nac.</label>
+                    <div class="fecha-options">
+                        <select [ngModel]="regDia()" (ngModelChange)="regDia.set($event); marcarTocado('regFecha')" name="regDia">
+                            <option value="" disabled selected>Día</option>
+                            @for (d of dias; track d) {
+                                <option [value]="d">{{ d }}</option>
+                            }
+                        </select>
+
+                        <select [ngModel]="regMes()" (ngModelChange)="regMes.set($event); marcarTocado('regFecha')" name="regMes">
+                            <option value="" disabled selected>Mes</option>
+                            @for (m of meses; track m.valor) {
+                                <option [value]="m.valor">{{ m.nombre }}</option>
+                            }
+                        </select>
+
+                        <select [ngModel]="regAnio()" (ngModelChange)="regAnio.set($event); marcarTocado('regFecha')" name="regAnio">
+                            <option value="" disabled selected>Año</option>
+                            @for (a of anios; track a) {
+                                <option [value]="a">{{ a }}</option>
+                            }
+                        </select>
+                    </div>
                 </div>
+                @if (touched()['regFecha'] && errRegFecha()) {
+                    <span class="msg-error">{{ errRegFecha() }}</span>
+                }
 
                 <div class="campo">
                     <label for="reg-sangre">Tipo de Sangre</label>
-                    <select id="reg-sangre" [ngModel]="regTipoSangre()" (ngModelChange)="regTipoSangre.set($event)"
-                        name="regTipoSangre" required>
+                    <select id="reg-sangre" [ngModel]="regTipoSangre()" (ngModelChange)="regTipoSangre.set($event)" name="regTipoSangre" required>
                         <option value="A+">A+</option>
                         <option value="A-">A-</option>
                         <option value="B+">B+</option>
@@ -87,16 +137,24 @@
                 <div class="campo">
                     <label for="reg-ojos">Color de Ojos</label>
                     <input type="text" id="reg-ojos" placeholder="Marrón" [ngModel]="regColorOjos()"
-                        (ngModelChange)="regColorOjos.set($event)" name="regColorOjos" required />
+                        (ngModelChange)="regColorOjos.set($event); marcarTocado('regColorOjos')" name="regColorOjos" required
+                        [class.input-error]="touched()['regColorOjos'] && errRegColorOjos()" />
                 </div>
+                @if (touched()['regColorOjos'] && errRegColorOjos()) {
+                    <span class="msg-error">{{ errRegColorOjos() }}</span>
+                }
 
                 <div class="campo">
                     <label for="reg-vacaciones">Días de Vacaciones/Año</label>
                     <input type="number" id="reg-vacaciones" min="0" max="365" [ngModel]="regDiasVacaciones()"
-                        (ngModelChange)="regDiasVacaciones.set(+$event)" name="regDiasVacaciones" required />
+                        (ngModelChange)="regDiasVacaciones.set(+$event); marcarTocado('regVacaciones')" name="regVacaciones" required
+                        [class.input-error]="touched()['regVacaciones'] && errRegVacaciones()" />
                 </div>
+                @if (touched()['regVacaciones'] && errRegVacaciones()) {
+                    <span class="msg-error">{{ errRegVacaciones() }}</span>
+                }
 
-                <button type="submit" [disabled]="cargando()" class="btn-submit">
+                <button type="submit" [disabled]="cargando() || !regFormValido()" class="btn-submit">
                     {{ cargando() ? 'Cargando...' : 'Registrarse' }}
                 </button>
             </form>

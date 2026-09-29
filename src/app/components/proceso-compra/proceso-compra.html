@@ -1,23 +1,42 @@
 <section class="compra-contenedor">
-
-    @if (restriccionEdadPelicula() > 0) {
-        <div class="alerta-clasificacion">
-            <h4>Película Clasificación +{{ restriccionEdadPelicula() }}</h4>
-            @if (requiereAdulto()) {
-                <p>
-                    Atención: El usuario ingresado es menor a la clasificación requerida. Debe asistir acompañado por un adulto a la sala.
-                </p>
-            }
-        </div>
+    <div class="titulo-pelicula">
+        <h2>{{ tituloPelicula }}</h2>
+        @if (restriccionEdadPelicula() > 0) {
+            <div class="alerta-clasificacion">
+                <h4>Película Clasificación +{{ restriccionEdadPelicula() }}</h4>
+            </div>
+        }
+    </div>
+    @if (requiereAdulto()) {
+        <p>
+            Atención: El usuario ingresado es menor a la clasificación requerida. Debe asistir acompañado por un adulto a la sala.
+        </p>
     }
 
     <div class="grupo-opciones">
-        <label>Seleccionar Función (Hoy y Mañana)</label>
+        <label>Seleccionar Día</label>
+        <div class="tarjetas-dias">
+            @for (dia of diasDisponibles(); track dia.fechaStr) {
+                <button 
+                    type="button" 
+                    class="card-dia"
+                    [class.seleccionado]="dia.fechaStr === fechaSeleccionada()"
+                    (click)="seleccionarFecha(dia.fechaStr)">
+                    
+                    <span class="dia-nombre">{{ dia.esHoy ? 'HOY' : (dia.fecha | date:'EEEE':'':'es') }}</span>
+                    <span class="dia-numero">{{ dia.fecha | date:'dd/MM' }}</span>
+                </button>
+            }
+        </div>
+    </div>
+
+    <div class="grupo-opciones">
+        <label>Horarios Disponibles</label>
         @if (cargandoFunciones()) {
-            <p class="txt-cargando">Cargando funciones disponibles...</p>
+            <p class="txt-cargando">Cargando horarios...</p>
         } @else {
             <div class="tarjetas-funciones">
-                @for (func of funciones(); track func.id) {
+                @for (func of funcionesDelDia(); track func.id) {
                     <button 
                         type="button" 
                         class="card-funcion"
@@ -25,7 +44,7 @@
                         (click)="funcionSeleccionadaId.set(func.id)">
                         
                         <div class="hora-fecha">
-                            <span class="fecha">{{ func.inicio | date:'dd/MM' }} - {{ func.inicio | date:'HH:mm' }}</span>
+                            <span class="hora">{{ func.inicio | date:'HH:mm' }} hs</span>
                         </div>
 
                         <div class="detalles-funcion">
@@ -37,14 +56,14 @@
                         </div>
                     </button>
                 } @empty {
-                    <p class="txt-vacio">No hay funciones disponibles para hoy ni mañana.</p>
+                    <p class="txt-vacio">No hay funciones disponibles para el día seleccionado.</p>
                 }
             </div>
         }
     </div>
 
     <div class="grupo-opciones">
-        <label>Cantidad de Entradas</label>
+        <label>3. Cantidad de Entradas</label>
         <div class="control-cantidad">
             <button type="button" (click)="modificarCantidad(-1)" [disabled]="cantidadEntradas() <= 1">-</button>
             <span>{{ cantidadEntradas() }}</span>
@@ -58,7 +77,7 @@
 
         @if (porcentajeDescuentoTotal() > 0) {
             <span class="descuento-aplicado">
-                🎉 ¡{{ porcentajeDescuentoTotal() }}% OFF aplicado! {{ porcentajeDescuentoMensaje() }}
+                ¡{{ porcentajeDescuentoTotal() }}% OFF aplicado! {{ porcentajeDescuentoMensaje() }}
             </span>
         }
     </div>
@@ -71,15 +90,16 @@
             {{ procesando() ? 'Guardando...' : 'Continuar' }}
         </button>
     </div>
+
     @if (funcionSeleccionadaId()) {
-    <div class="grupo-opciones">
-        <label>Selección de Asientos</label>
-        <app-disposicion-butacas 
-            [funcionId]="funcionSeleccionadaId()!"
-            [salaId]="funcionObjeto()?.sala_id || funcionObjeto()?.salas?.id || ''"
-            [cantidadMaxSeleccionable]="cantidadEntradas()"
-            (seleccionCambiada)="onButacasCambiadas($event)">
-        </app-disposicion-butacas>
-    </div>
-}
+        <div class="grupo-opciones">
+            <label>4. Selección de Asientos</label>
+            <app-disposicion-butacas 
+                [funcionId]="funcionSeleccionadaId()!"
+                [salaId]="funcionObjeto()?.sala_id || funcionObjeto()?.salas?.id || ''"
+                [cantidadMaxSeleccionable]="cantidadEntradas()"
+                (seleccionCambiada)="onButacasCambiadas($event)">
+            </app-disposicion-butacas>
+        </div>
+    }
 </section>

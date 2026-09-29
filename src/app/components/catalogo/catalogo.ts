@@ -71,7 +71,7 @@ export class CatalogoComponent implements OnInit {
                     .from('peliculas')
                     .select(`
                         *,
-                        peliculas_generos!inner (
+                        generos_peliculas!inner (
                             genero_id
                         )
                     `);
@@ -80,7 +80,7 @@ export class CatalogoComponent implements OnInit {
                     query = query.ilike('titulo', `%${filtro.texto}%`);
                 }
 
-                query = query.in('peliculas_generos.genero_id', filtro.generosIds);
+                query = query.in('generos_peliculas.genero_id', filtro.generosIds);
 
                 const { data: result, error } = await query;
                 if (error) throw error;

@@ -20,5 +20,6 @@ export const routes: Routes = [
     {path: 'gestionPeliculas',loadComponent: () => import('./components/gestion-peliculas/gestion-peliculas').then(m => m.GestionPeliculasComponent),canActivate: [empleadoGuard]},
     {path: 'gestionUsuarios',loadComponent: () => import('./components/gestion-usuarios/gestion-usuarios').then(m => m.GestionUsuariosComponent),canActivate: [empleadoGuard]},
     { path: 'facturacion', loadComponent: () => import('./components/facturacion/facturacion').then(m => m.Facturacion)},
+    { path: 'proceso-compra/:id', loadComponent: () => import('./components/proceso-compra/proceso-compra').then(m => m.ProcesoCompraComponent) },
     { path: '**', redirectTo: '' }
 ];

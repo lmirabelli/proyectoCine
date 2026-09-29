@@ -1,16 +1,19 @@
 <div class="buscador-container">
-
-    @if (generosSeleccionadosIds().length === 0) {
+    
     <form (ngSubmit)="onBuscarSubmit()" class="seccion-texto">
         <label class="label-texto" for="input-texto">Buscar por Título: </label>
         <input id="input-texto" type="text" name="busqueda" placeholder="Escribí el nombre de la película..."
             [ngModel]="busquedaTexto()" (ngModelChange)="onTextoInput($event)" class="input-busqueda" />
     </form>
-    }
 
-    @if (busquedaTexto().trim() === '') {
     <div class="seccion-generos">
-        <label class="titulo-generos">Filtrar por Género:</label>
+        <div class="header-generos">
+            <label class="titulo-generos">Filtrar por Género:</label>
+            @if (busquedaTexto().trim() !== '' || generosSeleccionadosIds().length > 0) {
+                <button type="button" class="btn-limpiar" (click)="limpiarBuscador()">Limpiar filtros</button>
+            }
+        </div>
+        
         <div class="lista-checkboxes">
             @for (g of generos(); track g.id) {
             <label class="checkbox-genero">
@@ -21,5 +24,5 @@
             }
         </div>
     </div>
-    }
+
 </div>

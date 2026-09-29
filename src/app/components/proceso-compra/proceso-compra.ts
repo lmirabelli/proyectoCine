@@ -7,6 +7,12 @@ import { FuncionPelicula } from '../../models/funcion';
 import { DisposicionButacasComponent } from '../disposicion-butacas/disposicion-butacas';
 import { Butaca } from '../../models/butaca';
 
+export interface DiaOpcion {
+    fechaStr: string; // ISO formato YYYY-MM-DD para comparar fácil
+    fecha: Date;
+    esHoy: boolean;
+}
+
 @Component({
     selector: 'app-proceso-compra',
     standalone: true,
@@ -16,12 +22,57 @@ import { Butaca } from '../../models/butaca';
 })
 export class ProcesoCompraComponent implements OnInit {
 
-    @Input() peliculaId!: string;
-    @Input() tituloPelicula!: string;
+    private _peliculaId: string = '';
+
+    @Input() set id(val: string) {
+        if (val && val !== this._peliculaId) {
+            this._peliculaId = val;
+            this.inicializarComponente();
+        }
+    }
+
+    @Input() set peliculaId(val: string) {
+        if (val && val !== this._peliculaId) {
+            this._peliculaId = val;
+            this.inicializarComponente();
+        }
+    }
+
+    get peliculaId(): string {
+        return this._peliculaId;
+    }
+
+    @Input() tituloPelicula: string = '';
+
     private supabase = inject(SupabaseService);
     private router = inject(Router);
+
     readonly precioBase = 12000;
-    funciones = signal<FuncionPelicula[]>([]);
+    
+    // Lista completa de funciones obtenidas desde Supabase (hasta 7 días)
+    todasLasFunciones = signal<FuncionPelicula[]>([]);
+    
+    // Fechas generadas para la semana actual (7 días)
+    diasDisponibles = signal<DiaOpcion[]>([]);
+    
+    // Fecha seleccionada por el usuario (por defecto: hoy)
+    fechaSeleccionada = signal<string>('');
+
+    // Funciones filtradas según la fecha seleccionada
+    funcionesDelDia = computed(() => {
+        const fechaTarget = this.fechaSeleccionada();
+        if (!fechaTarget) return [];
+
+        return this.todasLasFunciones().filter(f => {
+            const fechaFunc = new Date(f.inicio);
+            const yyyy = fechaFunc.getFullYear();
+            const mm = String(fechaFunc.getMonth() + 1).padStart(2, '0');
+            const dd = String(fechaFunc.getDate()).padStart(2, '0');
+            const strFunc = `${yyyy}-${mm}-${dd}`;
+            return strFunc === fechaTarget;
+        });
+    });
+
     funcionSeleccionadaId = signal<string>('');
     cantidadEntradas = signal<number>(1);
     cargandoFunciones = signal<boolean>(false);
@@ -44,7 +95,7 @@ export class ProcesoCompraComponent implements OnInit {
     });
 
     funcionObjeto = computed(() => {
-        return this.funciones().find(f => f.id === this.funcionSeleccionadaId());
+        return this.todasLasFunciones().find(f => f.id === this.funcionSeleccionadaId());
     });
 
     montoUnitario = computed(() => {
@@ -59,8 +110,44 @@ export class ProcesoCompraComponent implements OnInit {
     });
 
     async ngOnInit(): Promise<void> {
+        this.generarDiasSemana();
+        await this.cargarDatosUsuarioYDescuentos();
+        if (this._peliculaId) {
+            await this.inicializarComponente();
+        }
+    }
+
+    private generarDiasSemana(): void {
+        const dias: DiaOpcion[] = [];
+        const hoy = new Date();
+
+        for (let i = 0; i < 7; i++) {
+            const d = new Date(hoy);
+            d.setDate(hoy.getDate() + i);
+
+            const yyyy = d.getFullYear();
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const dd = String(d.getDate()).padStart(2, '0');
+            const fechaStr = `${yyyy}-${mm}-${dd}`;
+
+            dias.push({
+                fechaStr,
+                fecha: d,
+                esHoy: i === 0
+            });
+        }
+
+        this.diasDisponibles.set(dias);
+        // Seleccionamos la fecha de hoy por default
+        if (dias.length > 0) {
+            this.fechaSeleccionada.set(dias[0].fechaStr);
+        }
+    }
+
+    private async inicializarComponente(): Promise<void> {
+        if (!this._peliculaId) return;
+
         await Promise.all([
-            this.cargarDatosUsuarioYDescuentos(),
             this.cargarPelicula(),
             this.cargarFunciones()
         ]);
@@ -68,20 +155,21 @@ export class ProcesoCompraComponent implements OnInit {
     }
 
     private async cargarPelicula(): Promise<void> {
-        if (!this.peliculaId) return;
-
         try {
             const { data, error } = await this.supabase.client
                 .from('peliculas')
-                .select('restriccion_edad')
-                .eq('id', this.peliculaId)
+                .select('titulo, restriccion_edad')
+                .eq('id', this._peliculaId)
                 .single();
 
             if (!error && data) {
+                if (!this.tituloPelicula) {
+                    this.tituloPelicula = data.titulo;
+                }
                 this.restriccionEdadPelicula.set(data.restriccion_edad ?? 0);
             }
         } catch (e) {
-            console.error('Error al obtener la restricción de edad de la película:', e);
+            console.error('Error al obtener datos de la película:', e);
         }
     }
 
@@ -128,7 +216,6 @@ export class ProcesoCompraComponent implements OnInit {
         if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) {
             edad--;
         }
-        console.log(edad);
         return edad;
     }
 
@@ -139,12 +226,7 @@ export class ProcesoCompraComponent implements OnInit {
 
         if (error || !reglas) return;
 
-        const reglaAplicable = reglas.find((r: any) => {
-            console.log(r.edad_minima)
-
-            const aplicaDescuento = edad >= r.edad_minima
-            return aplicaDescuento;
-        });
+        const reglaAplicable = reglas.find((r: any) => edad >= r.edad_minima);
 
         if (reglaAplicable && reglaAplicable.porcentaje) {
             this.porcentajeDescuentoEdad.set(reglaAplicable.porcentaje);
@@ -154,35 +236,54 @@ export class ProcesoCompraComponent implements OnInit {
     }
 
     private async cargarFunciones(): Promise<void> {
-        if (!this.peliculaId) return;
+        if (!this._peliculaId) return;
 
         this.cargandoFunciones.set(true);
 
-        const { data, error } = await this.supabase.client
-            .from('funciones')
-            .select('*, salas!inner(id, nombre, formato)')
-            .eq('pelicula_id', this.peliculaId)
-            .order('inicio', { ascending: true });
+        try {
+            const { data, error } = await this.supabase.client
+                .from('funciones')
+                .select('*, salas(*)')
+                .eq('pelicula_id', String(this._peliculaId))
+                .order('inicio', { ascending: true });
 
-        if (!error && data) {
-            const ahora = new Date();
-            const limiteManana = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate() + 2, 0, 0, 0);
+            if (error) throw error;
 
-            const funcionesValidas = data.filter((f: FuncionPelicula) => {
-                const fechaFuncion = new Date(f.inicio);
-                return fechaFuncion > ahora && fechaFuncion < limiteManana;
-            });
+            if (data && data.length > 0) {
+                const ahora = new Date();
+                // Consultamos hasta 7 días en el futuro
+                const limiteSemana = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate() + 7, 23, 59, 59);
 
-            this.funciones.set(funcionesValidas);
+                const funcionesValidas = data.filter((f: any) => {
+                    const fechaFuncion = new Date(f.inicio);
+                    return fechaFuncion >= ahora && fechaFuncion <= limiteSemana;
+                });
 
-            if (funcionesValidas.length > 0) {
-                this.funcionSeleccionadaId.set(funcionesValidas[0].id);
+                this.todasLasFunciones.set(funcionesValidas);
+                this.autoSeleccionarPrimerHorario();
             } else {
+                this.todasLasFunciones.set([]);
                 this.funcionSeleccionadaId.set('');
             }
+        } catch (err) {
+            console.error('Error al cargar funciones:', err);
+        } finally {
+            this.cargandoFunciones.set(false);
         }
+    }
 
-        this.cargandoFunciones.set(false);
+    seleccionarFecha(fechaStr: string): void {
+        this.fechaSeleccionada.set(fechaStr);
+        this.autoSeleccionarPrimerHorario();
+    }
+
+    private autoSeleccionarPrimerHorario(): void {
+        const disponibles = this.funcionesDelDia();
+        if (disponibles.length > 0) {
+            this.funcionSeleccionadaId.set(disponibles[0].id);
+        } else {
+            this.funcionSeleccionadaId.set('');
+        }
     }
 
     onButacasCambiadas(butacas: Butaca[]): void {
@@ -195,7 +296,6 @@ export class ProcesoCompraComponent implements OnInit {
             this.cantidadEntradas.set(nuevaCant);
         }
     }
-
 
     finalizarCompra(): void {
         const funcion = this.funcionObjeto();
@@ -216,7 +316,7 @@ export class ProcesoCompraComponent implements OnInit {
         const idSalaObtenido = funcion.salas?.id || (funcion as any).id_sala || (funcion as any).sala_id || null;
 
         const datosEntradas = {
-            peliculaId: this.peliculaId,
+            peliculaId: this._peliculaId,
             tituloPelicula: this.tituloPelicula,
             funcionId: funcion.id,
             salaId: idSalaObtenido,
