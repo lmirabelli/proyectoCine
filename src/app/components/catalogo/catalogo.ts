@@ -28,6 +28,7 @@ export class CatalogoComponent implements OnInit {
 
     peliculas = signal<Pelicula[]>([]);
     destacadas = signal<Pelicula[]>([]);
+    proximamente = signal<Pelicula[]>([]);
 
     busqueda = signal<boolean>(false);
     cargando = signal<boolean>(true);
@@ -36,36 +37,44 @@ export class CatalogoComponent implements OnInit {
         await this.cargarDatosIniciales();
     }
 
-private async cargarDatosIniciales(): Promise<void> {
-    this.cargando.set(true);
-    try {
-        const { data, error } = await this.supabase.client
-            .from('peliculas')
-            .select(`
-                *,
-                generos_peliculas (
-                    generos (
-                        nombre
+    private async cargarDatosIniciales(): Promise<void> {
+        this.cargando.set(true);
+        try {
+            const { data, error } = await this.supabase.client
+                .from('peliculas')
+                .select(`
+                    *,
+                    generos_peliculas (
+                        generos (
+                            nombre
+                        )
                     )
-                )
-            `);
+                `);
 
-        if (error) throw error;
-        const peliculasConGeneros = (data || []).map((p: any) => ({
-            ...p,
-            generos: p.generos_peliculas?.map((gp: any) => gp.generos?.nombre).filter(Boolean) || []
-        }));
+            if (error) throw error;
+            const peliculasConGeneros = (data || []).map((p: any) => ({
+                ...p,
+                generos: p.generos_peliculas?.map((gp: any) => gp.generos?.nombre).filter(Boolean) || []
+            }));
 
-        const peliculasOrdenadas = peliculasConGeneros.sort((a, b) => a.titulo.localeCompare(b.titulo));
-        
-        this.peliculas.set(peliculasOrdenadas);
-        this.obtenerDestacadas(peliculasOrdenadas);
-    } catch (error) {
-        console.error('Error al obtener la cartelera:', error);
-    } finally {
-        this.cargando.set(false);
+            const peliculasOrdenadas = peliculasConGeneros.sort((a: Pelicula, b: Pelicula) => a.titulo.localeCompare(b.titulo));
+            
+            const enCartelera = peliculasOrdenadas.filter(
+                p => p.disponibilidad?.toLowerCase() === 'en cartelera'
+            );
+            const proximoEstreno = peliculasOrdenadas.filter(
+                p => p.disponibilidad?.toLowerCase() === 'proximamente'
+            );
+
+            this.peliculas.set(enCartelera);
+            this.proximamente.set(proximoEstreno);
+            this.obtenerDestacadas(enCartelera);
+        } catch (error) {
+            console.error('Error al obtener la cartelera:', error);
+        } finally {
+            this.cargando.set(false);
+        }
     }
-}
 
     async onBuscar(filtro: FiltroBusqueda): Promise<void> {
         const tieneTexto = filtro.texto !== '';
@@ -115,15 +124,23 @@ private async cargarDatosIniciales(): Promise<void> {
             const unicas = Array.from(new Map(data.map(p => [p.id, p])).values());
             const ordenadas = unicas.sort((a, b) => a.titulo.localeCompare(b.titulo));
 
-            this.peliculas.set(ordenadas);
+            const enCarteleraFiltradas = ordenadas.filter(
+                p => p.disponibilidad?.toLowerCase() === 'en cartelera'
+            );
+            const proximamenteFiltradas = ordenadas.filter(
+                p => p.disponibilidad?.toLowerCase() === 'proximamente'
+            );
+
+            this.peliculas.set(enCarteleraFiltradas);
+            this.proximamente.set(proximamenteFiltradas);
             this.destacadas.set([]);
         } catch (error) {
             console.error('Error al filtrar películas:', error);
         }
     }
 
-    obtenerDestacadas(lista: Pelicula[]): void {
-        const topDestacadas = [...lista]
+    obtenerDestacadas(listaEnCartelera: Pelicula[]): void {
+        const topDestacadas = [...listaEnCartelera]
             .sort((a, b) => (b.ventas_totales ?? 0) - (a.ventas_totales ?? 0))
             .slice(0, 3);
         this.destacadas.set(topDestacadas);

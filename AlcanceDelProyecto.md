@@ -47,7 +47,7 @@
 ## E-Mail 8
 
 - Programa de Puntos: Sistema de acumulacion de 1 punto por peso gastado en usuarios registrados (puntos personales e intransferibles). OK
-- Gestion y Canje de Puntos: Seccion en la cuenta del usuario para consultar saldo, historial de canjes y cambiar puntos por entradas o items del Candy Bar (precios en puntos configurables por el Admin).
+- Gestion y Canje de Puntos: Seccion en la cuenta del usuario para consultar saldo, historial de canjes y cambiar puntos por entradas o items del Candy Bar (precios en puntos configurables por el Admin). OK
 - Combos Especiales: Creacion y destaque visual de paquetes cerrados (ej. Entrada + Pochoclo + Bebida) a precio fijo en el checkout.
 
 ## E-Mail 9
