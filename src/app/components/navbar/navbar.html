@@ -4,11 +4,6 @@
             <img src="/logo.png" alt="Logo" />
             <span>Cine - Puchito Puchito</span>
         </a>
-        <div class="navbar-extras">
-            @if (!esRutaCandy()) {
-            <button (click)="irAlCandy()" class="btn-candy">Candy</button>
-            }
-        </div>
         <nav class="navbar-actions">
             @if (usuario(); as user) {
             <div class="usuario-data">
@@ -24,6 +19,7 @@
             } @else {
             <button (click)="irAlLogin()" class="btn-login">Iniciar Sesión</button>
             }
+            <button (click)="irAlCandy()" class="btn-candy">Candy</button>
         </nav>
     </div>
 </header>

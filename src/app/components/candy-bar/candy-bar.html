@@ -133,7 +133,17 @@
             </div>
 
             <button type="button" class="btn-primario" (click)="pagarYGenerarPdf()" [disabled]="procesando()">
-                {{ procesando() ? 'Procesando Pago y QR...' : 'Pagar y Generar Ticket PDF' }}
+                {{ procesando() ? 'Procesando Pago y QR...' : 'Pagar con dinero' }}
+            </button>
+            <button type="button" class="btn-primario" (click)="pagarConPuntos()"
+                [disabled]="procesando() || !tienePuntosSuficientes()">
+                @if (procesando()) {
+                Procesando...
+                } @else if (!tienePuntosSuficientes()) {
+                Pagar con Puntos (Requiere {{ puntosRequeridos() }} pts | Tenés {{ puntosUsuario() }} pts)
+                } @else {
+                Pagar con Puntos
+                }
             </button>
 
             @if (carrito().length > 0) {

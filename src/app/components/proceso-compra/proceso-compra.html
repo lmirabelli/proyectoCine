@@ -63,7 +63,7 @@
     </div>
 
     <div class="grupo-opciones">
-        <label>3. Cantidad de Entradas</label>
+        <label>Cantidad de Entradas</label>
         <div class="control-cantidad">
             <button type="button" (click)="modificarCantidad(-1)" [disabled]="cantidadEntradas() <= 1">-</button>
             <span>{{ cantidadEntradas() }}</span>
@@ -93,7 +93,7 @@
 
     @if (funcionSeleccionadaId()) {
         <div class="grupo-opciones">
-            <label>4. Selección de Asientos</label>
+            <label>Selección de Asientos</label>
             <app-disposicion-butacas 
                 [funcionId]="funcionSeleccionadaId()!"
                 [salaId]="funcionObjeto()?.sala_id || funcionObjeto()?.salas?.id || ''"

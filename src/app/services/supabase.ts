@@ -91,6 +91,80 @@ export class SupabaseService {
         return rol === 'empleado' || rol === 'administrador' || rol === 'admin';
     }
 
+    // --------------------------------------------- MODULO CANJE DE PUNTOS ------------------------------------------------------------------
+
+    async getPeliculasEnCartelera() {
+        const { data, error } = await this.supabase
+            .from('peliculas')
+            .select('id, titulo')
+            .eq('disponibilidad', 'en cartelera')
+            .order('titulo', { ascending: true });
+
+        if (error) throw error;
+        return data || [];
+    }
+
+    async getCandy() {
+        const { data, error } = await this.supabase
+            .from('candy')
+            .select('id, producto, tamano ,marca')
+            .order('producto', { ascending: true });
+
+        if (error) throw error;
+        return data || [];
+    }
+
+    async crearCanjeDePuntos(canje: { descripcion: any; puntos: number }) {
+        const fechaVencimiento = new Date();
+        fechaVencimiento.setDate(fechaVencimiento.getDate() + 7);
+
+        const { data, error } = await this.supabase
+            .from('canjeDePuntos')
+            .insert([
+                {
+                    descripcion: canje.descripcion,
+                    puntos: canje.puntos,
+                    vencimiento: fechaVencimiento.toISOString()
+                }
+            ])
+            .select()
+            .single();
+
+        if (error) throw error;
+        return data;
+    }
+
+    async getCanjesVigentes() {
+        const ahora = new Date().toISOString();
+        const { data, error } = await this.supabase
+            .from('canjeDePuntos')
+            .select('*')
+            .gte('vencimiento', ahora)
+            .order('vencimiento', { ascending: true });
+
+        if (error) throw error;
+        return data || [];
+    }
+
+    async procesarCanje(canjeId: string, puntosRequeridos: number): Promise<void> {
+        const usuario = this.usuarioActual();
+        if (!usuario || !usuario.id) throw new Error('Usuario no autenticado.');
+
+        const puntosActuales = await this.obtenerPuntosUsuario();
+        if (puntosActuales < puntosRequeridos) {
+            throw new Error('No tenés suficientes puntos para realizar este canje.');
+        }
+
+        const nuevosPuntos = puntosActuales - puntosRequeridos;
+
+        const { error: errorPerfil } = await this.supabase
+            .from('perfiles')
+            .update({ puntos: nuevosPuntos })
+            .eq('id', usuario.id);
+
+        if (errorPerfil) throw errorPerfil;
+    }
+
     // --------------------------------------------- MODULO CUPONES Y DESCUENTOS ------------------------------------------------------------------
 
     async getCupones() {
@@ -168,25 +242,37 @@ export class SupabaseService {
         return data;
     }
 
+    puntosActuales = signal<number>(0);
     async obtenerPuntosUsuario(): Promise<number> {
-        try {
-            const usuario = this.usuarioActual();
-            if (!usuario || !usuario.id) return 0;
+    try {
+        const { data: { session } } = await this.client.auth.getSession();
+        const userId = session?.user?.id || this.usuarioActual()?.id;
 
-            const { data, error } = await this.client
-                .from('perfiles')
-                .select('puntos')
-                .eq('id', usuario.id)
-                .maybeSingle();
-
-            if (error || !data) return 0;
-
-            return data.puntos ?? 0;
-        } catch (err) {
-            console.error('Error al obtener los puntos del usuario:', err);
+        if (!userId) {
+            this.puntosActuales.set(0);
             return 0;
         }
+
+        const { data, error } = await this.client
+            .from('perfiles')
+            .select('puntos')
+            .eq('id', userId)
+            .single();
+
+        if (error || !data) {
+            this.puntosActuales.set(0);
+            return 0;
+        }
+
+        const pts = data.puntos ?? 0;
+        this.puntosActuales.set(pts);
+        return pts;
+    } catch (err) {
+        console.error('Error al obtener los puntos del usuario:', err);
+        this.puntosActuales.set(0);
+        return 0;
     }
+}
 
     // --------------------------------------------- MODULO CLIENTE  ------------------------------------------------------------------
 
@@ -344,6 +430,10 @@ export class SupabaseService {
 
     irAlCandy(): void {
         this.router.navigate(['/candybar']);
+    }
+
+    irAlCentroDeCanje(): void {
+        this.router.navigate(['/centro-canje']);
     }
 
     // STORAGE PARA AFICHES

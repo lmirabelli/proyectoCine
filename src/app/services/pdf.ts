@@ -9,6 +9,9 @@ import { ComprobanteReserva } from '../models/reserva';
 export class PdfService {
 
     async generarComprobantePDF(datos: ComprobanteReserva): Promise<void> {
+        const esPagoConPuntos = datos.idReserva.startsWith('CANJ');
+        const multiplicadorPuntos = 20;
+
         const doc = new jsPDF({
             orientation: 'portrait',
             unit: 'mm',
@@ -30,9 +33,11 @@ export class PdfService {
         doc.setFontSize(14);
         doc.text('SALAS DE CINE - PUCHITO PUCHITO', 52.5, posY, { align: 'center' });
         posY += 12;
+
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(12);
-        doc.text('COMPROBANTE DE COMPRA', 52.5, posY, { align: 'center' });
+        const tituloComprobante = esPagoConPuntos ? 'COMPROBANTE DE CANJE' : 'COMPROBANTE DE COMPRA';
+        doc.text(tituloComprobante, 52.5, posY, { align: 'center' });
         posY += 5;
 
         doc.setFontSize(9);
@@ -57,13 +62,6 @@ export class PdfService {
             doc.text(datos.tituloPelicula, 32, posY);
             posY += 5;
 
-            const cantEntradas = datos.cantidadEntradas ?? 0;
-            doc.setFont('helvetica', 'bold');
-            doc.text('Cant. Entradas:', 8, posY);
-            doc.setFont('helvetica', 'normal');
-            doc.text(String(cantEntradas), 32, posY);
-            posY += 5;
-
             doc.setFont('helvetica', 'bold');
             doc.text('Formato:', 8, posY);
             doc.setFont('helvetica', 'normal');
@@ -85,6 +83,23 @@ export class PdfService {
                 doc.text(datos.asientos.join(', '), 32, posY);
                 posY += 5;
             }
+
+            const cantEntradas = datos.cantidadEntradas ?? 0;
+            doc.setFont('helvetica', 'bold');
+            doc.text('Cant. Entradas:', 8, posY);
+            doc.setFont('helvetica', 'normal');
+
+            // Lógica según tipo de pago
+            if (esPagoConPuntos) {
+                // Estimación o desglose del gasto de entradas en puntos si las hay
+                const costoEntradasPesos = (datos.montoTotal - (datos.itemsCandy?.reduce((acc, i) => acc + i.subtotal, 0) ?? 0));
+                const costoEntradasPts = Math.max(0, Math.ceil(costoEntradasPesos * multiplicadorPuntos));
+                doc.text(`${cantEntradas}x entradas ${costoEntradasPts}pts`, 32, posY);
+            } else {
+                const costoEntradasPesos = (datos.montoTotal - (datos.itemsCandy?.reduce((acc, i) => acc + i.subtotal, 0) ?? 0));
+                doc.text(`${cantEntradas}x entradas $${Math.max(0, costoEntradasPesos)}`, 32, posY);
+            }
+            posY += 5;
 
             if (datos.requiereAdulto) {
                 posY += 2;
@@ -109,7 +124,9 @@ export class PdfService {
             doc.setFont('helvetica', 'normal');
             datos.itemsCandy.forEach(item => {
                 const linea = `${item.cantidad}x ${item.nombre}`;
-                const precio = `$${item.subtotal}`;
+                const precio = esPagoConPuntos 
+                    ? `${Math.ceil(item.subtotal * multiplicadorPuntos)}pts`
+                    : `$${item.subtotal}`;
                 doc.text(linea, 8, posY);
                 doc.text(precio, 97, posY, { align: 'right' });
                 posY += 4;
@@ -124,7 +141,12 @@ export class PdfService {
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(10);
         doc.text('TOTAL:', 8, posY);
-        doc.text(`$${datos.montoTotal}`, 97, posY, { align: 'right' });
+
+        const totalTexto = esPagoConPuntos
+            ? `${Math.ceil(datos.montoTotal * multiplicadorPuntos)}pts`
+            : `$${datos.montoTotal}`;
+
+        doc.text(totalTexto, 97, posY, { align: 'right' });
 
         posY += 6;
         const qrPosY = Math.min(posY, 90);

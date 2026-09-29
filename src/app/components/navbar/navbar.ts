@@ -17,7 +17,7 @@ export class NavbarComponent {
     usuario = this.supabase.usuarioActual;
     esAdmin = signal<boolean>(false);
     esPersonal = signal<boolean>(false);
-    puntos = signal<number>(0);
+    puntos = this.supabase.puntosActuales;
 
     constructor() {
     effect(async () => {
@@ -55,6 +55,7 @@ irAlMenuEmpleados(): void {
     irAlCandy(): void {
         this.supabase.irAlCandy();
     }
+
 
     async cerrarSesion(): Promise<void> {
         await this.supabase.cerrarSesion();

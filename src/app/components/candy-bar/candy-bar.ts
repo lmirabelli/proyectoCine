@@ -35,6 +35,16 @@ export class CandyBarComponent implements OnInit {
   inputCupon = signal<string>('');
   mensajeCupon = signal<string | null>(null);
 
+  puntosUsuario = signal<number>(0);
+
+  puntosRequeridos = computed(() => {
+    return Math.ceil(this.totalPagar() * 5);
+  });
+
+  tienePuntosSuficientes = computed(() => {
+    return this.puntosUsuario() >= this.puntosRequeridos() && this.totalPagar() > 0;
+  });
+
   categoriasDisponibles = computed(() => {
     const cats = this.productos()
       .map(p => p.categoria || 'Otros')
@@ -87,8 +97,16 @@ export class CandyBarComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     this.cargarReservaPendiente();
-    await this.cargarProductos();
-    await this.evaluarDescuentosAutomaticos();
+    await Promise.all([
+      this.cargarProductos(),
+      this.cargarPuntosUsuario(),
+      this.evaluarDescuentosAutomaticos()
+    ]);
+  }
+
+  async cargarPuntosUsuario(): Promise<void> {
+    const pts = await this.supabase.obtenerPuntosUsuario();
+    this.puntosUsuario.set(pts);
   }
 
   private async evaluarDescuentosAutomaticos(): Promise<void> {
@@ -238,165 +256,104 @@ export class CandyBarComponent implements OnInit {
     this.carrito.set([]);
   }
 
+  async pagarConPuntos(): Promise<void> {
+    const usuarioSesion = this.supabase.usuarioActual();
+    if (!usuarioSesion || !usuarioSesion.id) {
+      alert('Debes estar autenticado para abonar con puntos.');
+      return;
+    }
+
+    const puntosNecesarios = this.puntosRequeridos();
+    const puntosActuales = await this.supabase.obtenerPuntosUsuario();
+
+    if (puntosActuales < puntosNecesarios) {
+      alert(`Puntos insuficientes. Necesitás ${puntosNecesarios} pts y tenés ${puntosActuales} pts.`);
+      return;
+    }
+
+    const confirmacion = confirm(`¿Confirmás el pago utilizando ${puntosNecesarios} puntos?`);
+    if (!confirmacion) return;
+
+    this.procesando.set(true);
+    this.mensajeExito.set(null);
+
+    try {
+      const nuevosPuntos = puntosActuales - puntosNecesarios;
+      const { data: perfilActual } = await this.supabase.client
+        .from('perfiles')
+        .select('compras')
+        .eq('id', usuarioSesion.id)
+        .single();
+
+      const comprasPrevias = perfilActual?.compras ?? 0;
+
+      const { error: errorUpdate } = await this.supabase.client
+        .from('perfiles')
+        .update({
+          puntos: nuevosPuntos,
+          compras: comprasPrevias + 1
+        })
+        .eq('id', usuarioSesion.id);
+
+      if (errorUpdate) throw errorUpdate;
+
+      this.supabase.puntosActuales.set(nuevosPuntos);
+      this.puntosUsuario.set(nuevosPuntos);
+
+      await this.completarTransaccion(
+        () => `CANJ-${Math.floor(100000 + Math.random() * 900000)}`,
+        'PAGADO_PUNTOS'
+      );
+
+      this.mensajeExito.set(`¡Pago realizado con éxito abonando ${puntosNecesarios} pts! Tu ticket PDF con QR ha sido generado.`);
+
+      setTimeout(() => {
+        this.router.navigate(['/']);
+      }, 1500);
+
+    } catch (err) {
+      console.error('Error al procesar el pago con puntos:', err);
+      alert('Ocurrió un error al descontar los puntos y generar el comprobante.');
+    } finally {
+      this.procesando.set(false);
+    }
+  }
+
   async pagarYGenerarPdf(): Promise<void> {
     this.procesando.set(true);
     this.mensajeExito.set(null);
 
     try {
-      const idReservaGenerado = 'COMP-' + Math.floor(100000 + Math.random() * 900000);
-      const entradas = this.reservaPendiente();
       const usuarioSesion = this.supabase.usuarioActual();
 
-      const detalleItems: Array<{
-        nombre: string;
-        cantidad: number;
-        precioUnitario: number;
-        tamano?: string;
-        marca?: string;
-      }> = [];
-
-      if (entradas) {
-        detalleItems.push({
-          nombre: `Entrada: ${entradas.tituloPelicula} (${entradas.formato} - ${entradas.sala})`,
-          cantidad: entradas.cantidad,
-          precioUnitario: entradas.montoTotal / entradas.cantidad
-        });
-      }
-
-      this.carrito().forEach(i => {
-        detalleItems.push({
-          nombre: i.producto.producto,
-          cantidad: i.cantidad,
-          precioUnitario: i.producto.precio,
-          tamano: i.producto.tamano,
-          marca: i.producto.marca
-        });
-      });
-
-      const { error: errorComprobante } = await this.supabase.client
-        .from('comprobantes')
-        .insert([{
-          codigo_reserva: idReservaGenerado,
-          usuario_id: usuarioSesion?.id || null,
-          monto_total: this.totalPagar(),
-          estado: 'PENDIENTE',
-          detalle_items: detalleItems
-        }]);
-
-      if (errorComprobante) {
-        console.error('Error al registrar el comprobante en Supabase:', errorComprobante);
-        throw new Error('No se pudo registrar la compra en la base de datos.');
-      }
-
-      if (entradas && entradas.peliculaId) {
-        const { data: peliculaData } = await this.supabase.client
-          .from('peliculas')
-          .select('ventas_totales')
-          .eq('id', entradas.peliculaId)
-          .single();
-
-        const ventasPrevias = peliculaData?.ventas_totales ?? 0;
-
-        await this.supabase.client
-          .from('peliculas')
-          .update({ ventas_totales: ventasPrevias + entradas.cantidad })
-          .eq('id', entradas.peliculaId);
-      }
-
-      const fechaHorario = entradas?.fechaInicio
-        ? new Date(entradas.fechaInicio).toLocaleString('es-AR', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit'
-        })
-        : '';
-
-      if (entradas && entradas.asientos && entradas.asientos.length > 0) {
-        const registrosOcupacion = entradas.asientos.map(asiento => ({
-          funcion_id: entradas.funcionId,
-          sala_id: entradas.salaId,
-          asiento: asiento,
-          codigo_reserva: idReservaGenerado,
-          usuario_id: usuarioSesion?.id || null
-        }));
-
-        const { error: errorAsientos } = await this.supabase.client
-          .from('entradas_reservadas')
-          .insert(registrosOcupacion);
-
-        if (errorAsientos) {
-          console.error('Error al registrar asientos ocupados:', errorAsientos);
-        }
-      }
-
-      const datosComprobante: ComprobanteReserva = {
-        idReserva: idReservaGenerado,
-        peliculaId: entradas?.peliculaId,
-        tituloPelicula: entradas?.tituloPelicula,
-        formato: entradas?.formato,
-        idioma: entradas?.idioma,
-        sala: fechaHorario ? `${entradas?.sala} - ${fechaHorario}` : entradas?.sala,
-        fechaInicio: entradas?.fechaInicio,
-        cantidadEntradas: entradas?.cantidad ?? 0,
-        asientos: entradas?.asientos ?? [],
-        requiereAdulto: entradas?.requiereAdulto ?? false,
-        itemsCandy: this.carrito().map(i => ({
-          nombre: i.producto.producto,
-          cantidad: i.cantidad,
-          precioUnitario: i.producto.precio,
-          subtotal: i.producto.precio * i.cantidad
-        })),
-        montoTotal: this.totalPagar(),
-        fechaCompra: new Date().toISOString(),
-        codigoQR: idReservaGenerado
-      };
-
-      await this.pdfService.generarComprobantePDF(datosComprobante);
-
-      const cupon = this.cuponAplicado();
-      if (cupon) {
-        await this.supabase.client
-          .from('cupones')
-          .update({ disponible: cupon.disponible - 1 })
-          .eq('id', cupon.id);
-      }
+      await this.completarTransaccion(
+        () => `COMP-${Math.floor(100000 + Math.random() * 900000)}`,
+        'PENDIENTE'
+      );
 
       if (usuarioSesion && usuarioSesion.id) {
-        const { data: perfilActual, error: errorPerfil } = await this.supabase.client
+        const { data: perfilActual } = await this.supabase.client
           .from('perfiles')
           .select('compras, puntos')
           .eq('id', usuarioSesion.id)
           .maybeSingle();
 
-        if (errorPerfil) {
-          console.error('Error al consultar perfil para acumulación de puntos:', errorPerfil);
-        }
-
         const comprasPrevias = perfilActual?.compras ?? 0;
         const puntosPrevios = perfilActual?.puntos ?? 0;
         const puntosGanados = Math.floor(this.totalPagar());
 
-        const { error: errorUpdate } = await this.supabase.client
+        const nuevosPuntos = puntosPrevios + puntosGanados;
+
+        await this.supabase.client
           .from('perfiles')
-          .update({ 
+          .update({
             compras: comprasPrevias + 1,
-            puntos: puntosPrevios + puntosGanados
+            puntos: nuevosPuntos
           })
           .eq('id', usuarioSesion.id);
 
-        if (errorUpdate) {
-          console.error('Error al actualizar puntos y compras en Supabase:', errorUpdate);
-        }
+        this.supabase.puntosActuales.set(nuevosPuntos);
       }
-
-      localStorage.removeItem('reserva_entradas_pendiente');
-      this.reservaPendiente.set(null);
-      this.vaciarCarrito();
-      this.cuponAplicado.set(null);
-      this.inputCupon.set('');
-      this.mostrarModalResumen.set(false);
 
       this.mensajeExito.set('¡Compra efectuada exitosamente! Tu ticket PDF con el código QR ha sido descargado.');
 
@@ -410,5 +367,132 @@ export class CandyBarComponent implements OnInit {
     } finally {
       this.procesando.set(false);
     }
+  }
+
+  private async completarTransaccion(
+    generadorCodigo: () => string,
+    estadoCustom: string
+  ): Promise<void> {
+    const idReservaGenerado = generadorCodigo();
+    const entradas = this.reservaPendiente();
+    const usuarioSesion = this.supabase.usuarioActual();
+
+    const detalleItems: Array<{
+      nombre: string;
+      cantidad: number;
+      precioUnitario: number;
+      tamano?: string;
+      marca?: string;
+    }> = [];
+
+    if (entradas) {
+      detalleItems.push({
+        nombre: `Entrada: ${entradas.tituloPelicula} (${entradas.formato} - ${entradas.sala})`,
+        cantidad: entradas.cantidad,
+        precioUnitario: entradas.montoTotal / entradas.cantidad
+      });
+    }
+
+    this.carrito().forEach(i => {
+      detalleItems.push({
+        nombre: i.producto.producto,
+        cantidad: i.cantidad,
+        precioUnitario: i.producto.precio,
+        tamano: i.producto.tamano,
+        marca: i.producto.marca
+      });
+    });
+
+    const { error: errorComprobante } = await this.supabase.client
+      .from('comprobantes')
+      .insert([{
+        codigo_reserva: idReservaGenerado,
+        usuario_id: usuarioSesion?.id || null,
+        monto_total: this.totalPagar(),
+        estado: estadoCustom,
+        detalle_items: detalleItems
+      }]);
+
+    if (errorComprobante) {
+      throw new Error('No se pudo registrar la compra en la base de datos.');
+    }
+
+    if (entradas && entradas.peliculaId) {
+      const { data: peliculaData } = await this.supabase.client
+        .from('peliculas')
+        .select('ventas_totales')
+        .eq('id', entradas.peliculaId)
+        .single();
+
+      const ventasPrevias = peliculaData?.ventas_totales ?? 0;
+
+      await this.supabase.client
+        .from('peliculas')
+        .update({ ventas_totales: ventasPrevias + entradas.cantidad })
+        .eq('id', entradas.peliculaId);
+    }
+
+    const fechaHorario = entradas?.fechaInicio
+      ? new Date(entradas.fechaInicio).toLocaleString('es-AR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      })
+      : '';
+
+    if (entradas && entradas.asientos && entradas.asientos.length > 0) {
+      const registrosOcupacion = entradas.asientos.map(asiento => ({
+        funcion_id: entradas.funcionId,
+        sala_id: entradas.salaId,
+        asiento: asiento,
+        codigo_reserva: idReservaGenerado,
+        usuario_id: usuarioSesion?.id || null
+      }));
+
+      await this.supabase.client
+        .from('entradas_reservadas')
+        .insert(registrosOcupacion);
+    }
+
+    const datosComprobante: ComprobanteReserva = {
+      idReserva: idReservaGenerado,
+      peliculaId: entradas?.peliculaId,
+      tituloPelicula: entradas?.tituloPelicula,
+      formato: entradas?.formato,
+      idioma: entradas?.idioma,
+      sala: fechaHorario ? `${entradas?.sala} - ${fechaHorario}` : entradas?.sala,
+      fechaInicio: entradas?.fechaInicio,
+      cantidadEntradas: entradas?.cantidad ?? 0,
+      asientos: entradas?.asientos ?? [],
+      requiereAdulto: entradas?.requiereAdulto ?? false,
+      itemsCandy: this.carrito().map(i => ({
+        nombre: i.producto.producto,
+        cantidad: i.cantidad,
+        precioUnitario: i.producto.precio,
+        subtotal: i.producto.precio * i.cantidad
+      })),
+      montoTotal: this.totalPagar(),
+      fechaCompra: new Date().toISOString(),
+      codigoQR: idReservaGenerado
+    };
+
+    await this.pdfService.generarComprobantePDF(datosComprobante);
+
+    const cupon = this.cuponAplicado();
+    if (cupon) {
+      await this.supabase.client
+        .from('cupones')
+        .update({ disponible: cupon.disponible - 1 })
+        .eq('id', cupon.id);
+    }
+
+    localStorage.removeItem('reserva_entradas_pendiente');
+    this.reservaPendiente.set(null);
+    this.vaciarCarrito();
+    this.cuponAplicado.set(null);
+    this.inputCupon.set('');
+    this.mostrarModalResumen.set(false);
   }
 }
