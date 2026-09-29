@@ -5,30 +5,33 @@
         @for (itemFila of mapaFilas(); track itemFila.fila) {
         <div class="fila-linea" [class.fila-vip]="itemFila.esEspecial" [class.fila-adaptada]="itemFila.esEspecial">
 
-            <span class="letra-fila">{{ itemFila.fila }}</span>
-
+            
             <div class="distribucion-bloques">
-                @for (bloque of itemFila.bloques; track $index) {
-                <div class="bloque-asientos">
-                    @for (butaca of bloque; track butaca.id) {
-                    <button type="button" class="butaca" [class.ocupada]="butaca.ocupada"
-                        [class.seleccionada]="butaca.seleccionada" [class.accesible]="butaca.esAccesible"
-                        [disabled]="butaca.ocupada" (click)="seleccionarButaca(butaca)">
-                        {{ butaca.numero }}
-                    </button>
+                @if (itemFila.esEspecial || itemFila.fila === 'J' || itemFila.fila === 'K') {
+                    <div class="espacio-pasillo"></div>
+                } @else {
+                    <span class="letra-fila">{{ itemFila.fila }}</span>
+                    @for (bloque of itemFila.bloques; track $index) {
+                    <div class="bloque-asientos">
+                        @for (butaca of bloque; track butaca.id) {
+                        <button type="button" class="butaca" [class.ocupada]="butaca.ocupada"
+                            [class.seleccionada]="butaca.seleccionada" [class.accesible]="butaca.esAccesible"
+                            [disabled]="butaca.ocupada" (click)="seleccionarButaca(butaca)">
+                            {{ butaca.numero }}
+                        </button>
+                        }
+                    </div>
                     }
-                </div>
+                    <span class="letra-fila">{{ itemFila.fila }}</span>
                 }
             </div>
 
-            <span class="letra-fila">{{ itemFila.fila }}</span>
         </div>
         }
     </div>
 
     <div class="leyenda">
         <div class="item-leyenda"><span class="butaca muestra"></span> Disponible</div>
-        <div class="item-leyenda"><span class="butaca muestra accesible"></span> Accesible (Fila J y K)</div>
         <div class="item-leyenda"><span class="butaca muestra seleccionada"></span> Seleccionada</div>
         <div class="item-leyenda"><span class="butaca muestra ocupada"></span> Ocupada</div>
     </div>

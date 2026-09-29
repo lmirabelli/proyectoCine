@@ -1,9 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=Knewave&family=Quantico:ital,wght@0,400;0,700;1,400;1,700&family=Story+Script&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Chelsea+Market&family=Quantico:ital,wght@0,400;0,700;1,400;1,700&family=Story+Script&display=swap');
 
 :root{
     --fuente-titulo: "Story Script", system-ui;
     --fuente-sans: "Quantico", sans-serif;
-    --fuente-destacada: "Knewave", system-ui;
+    --fuente-destacada: "Chelsea Market", system-ui;
 
     --color-blanco-20: #ffffff13;
     --color-blanco-45: #ffffff52; 

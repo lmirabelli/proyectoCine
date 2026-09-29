@@ -4,8 +4,6 @@
 </div>
 } @else if (pelicula(); as p) {
 <article class="detalle-contenedor">
-    <button routerLink="/" class="btn-volver">← Volver al catálogo</button>
-
     <div class="pelicula-container">
         <div class="poster-container">
             <img [src]="p.afiche_url" [alt]="p.titulo" />
@@ -22,7 +20,10 @@
             </div>
 
             <p class="sinopsis">{{ p.sinopsis }}</p>
+
+            @if (p.disponibilidad?.toLowerCase() === 'en cartelera') {
             <button [routerLink]="['/proceso-compra', p.id]" class="btn-comprar">Comprar Entradas</button>
+            }
         </div>
     </div>
     <section class="resenas-container">
@@ -50,7 +51,7 @@
                 <small>{{ comentarioTexto().length }}/256 caracteres</small>
             </div>
 
-            <button type="submit" [disabled]="enviando() || !comentarioTexto().trim()" class="btn-enviar">
+            <button type="submit" [disabled]="enviando() || !comentarioTexto().trim()" class="btn-resena">
                 {{ enviando() ? 'Guardando...' : 'Publicar Reseña' }}
             </button>
         </form>
