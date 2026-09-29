@@ -6,6 +6,9 @@
     <hr>
     <span>⏱️: {{ pelicula.duracion_minutos }} min || 📆: {{ pelicula.estreno }}</span>
     <hr>
-    <p class="sinopsis">{{ pelicula.sinopsis }}</p>
+    <span class="generos">{{ pelicula.generos }}</span>
+    @if (pelicula.restriccion_edad > 0) {
+      <div class="restriccion">+{{ pelicula.restriccion_edad }}</div>
+    }
   </div>
 </div>

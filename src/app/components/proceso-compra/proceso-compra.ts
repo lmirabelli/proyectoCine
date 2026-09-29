@@ -8,7 +8,7 @@ import { DisposicionButacasComponent } from '../disposicion-butacas/disposicion-
 import { Butaca } from '../../models/butaca';
 
 export interface DiaOpcion {
-    fechaStr: string; // ISO formato YYYY-MM-DD para comparar fácil
+    fechaStr: string;
     fecha: Date;
     esHoy: boolean;
 }
@@ -49,16 +49,9 @@ export class ProcesoCompraComponent implements OnInit {
 
     readonly precioBase = 12000;
     
-    // Lista completa de funciones obtenidas desde Supabase (hasta 7 días)
     todasLasFunciones = signal<FuncionPelicula[]>([]);
-    
-    // Fechas generadas para la semana actual (7 días)
     diasDisponibles = signal<DiaOpcion[]>([]);
-    
-    // Fecha seleccionada por el usuario (por defecto: hoy)
     fechaSeleccionada = signal<string>('');
-
-    // Funciones filtradas según la fecha seleccionada
     funcionesDelDia = computed(() => {
         const fechaTarget = this.fechaSeleccionada();
         if (!fechaTarget) return [];
@@ -138,7 +131,6 @@ export class ProcesoCompraComponent implements OnInit {
         }
 
         this.diasDisponibles.set(dias);
-        // Seleccionamos la fecha de hoy por default
         if (dias.length > 0) {
             this.fechaSeleccionada.set(dias[0].fechaStr);
         }
@@ -251,7 +243,6 @@ export class ProcesoCompraComponent implements OnInit {
 
             if (data && data.length > 0) {
                 const ahora = new Date();
-                // Consultamos hasta 7 días en el futuro
                 const limiteSemana = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate() + 7, 23, 59, 59);
 
                 const funcionesValidas = data.filter((f: any) => {

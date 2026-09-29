@@ -36,20 +36,36 @@ export class CatalogoComponent implements OnInit {
         await this.cargarDatosIniciales();
     }
 
-    private async cargarDatosIniciales(): Promise<void> {
-        this.cargando.set(true);
-        try {
-            const data = await this.supabase.getPeliculas();
+private async cargarDatosIniciales(): Promise<void> {
+    this.cargando.set(true);
+    try {
+        const { data, error } = await this.supabase.client
+            .from('peliculas')
+            .select(`
+                *,
+                generos_peliculas (
+                    generos (
+                        nombre
+                    )
+                )
+            `);
 
-            const peliculasOrdenadas = [...data].sort((a, b) => a.titulo.localeCompare(b.titulo));
-            this.peliculas.set(peliculasOrdenadas);
-            this.obtenerDestacadas(data);
-        } catch (error) {
-            console.error('Error al obtener la cartelera:', error);
-        } finally {
-            this.cargando.set(false);
-        }
+        if (error) throw error;
+        const peliculasConGeneros = (data || []).map((p: any) => ({
+            ...p,
+            generos: p.generos_peliculas?.map((gp: any) => gp.generos?.nombre).filter(Boolean) || []
+        }));
+
+        const peliculasOrdenadas = peliculasConGeneros.sort((a, b) => a.titulo.localeCompare(b.titulo));
+        
+        this.peliculas.set(peliculasOrdenadas);
+        this.obtenerDestacadas(peliculasOrdenadas);
+    } catch (error) {
+        console.error('Error al obtener la cartelera:', error);
+    } finally {
+        this.cargando.set(false);
     }
+}
 
     async onBuscar(filtro: FiltroBusqueda): Promise<void> {
         const tieneTexto = filtro.texto !== '';
