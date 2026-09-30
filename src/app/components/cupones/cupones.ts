@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { SupabaseService } from '../../services/supabase';
 import { Cupon, DescuentoRegla } from '../../models/cupones';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-cupones',
@@ -61,7 +62,11 @@ export class CuponesComponent implements OnInit {
     if (!this.esAdmin()) return;
 
     if (!this.codigoCupon.trim() || this.descuentoCupon <= 0 || this.cuponesDisponibles <= 0) {
-      alert('Ingresá valores válidos para crear el cupón.');
+      Swal.fire({
+        icon: 'warning',
+        title: 'Datos requeridos',
+        text: 'Ingresá valores válidos para crear el cupón.'
+      });
       return;
     }
 
@@ -76,6 +81,12 @@ export class CuponesComponent implements OnInit {
 
       if (error) throw error;
 
+      Swal.fire({
+        icon: 'success',
+        title: '¡Cupón Creado!',
+        text: `El cupón ${this.codigoCupon.trim().toUpperCase()} fue generado correctamente.`
+      });
+
       this.codigoCupon = '';
       this.descuentoCupon = 10;
       this.cuponesDisponibles = 100;
@@ -83,12 +94,25 @@ export class CuponesComponent implements OnInit {
       await this.cargarCupones();
     } catch (error) {
       console.error('Error al crear el cupón:', error);
-      alert('Error al crear el cupón. Es posible que el código ya exista.');
+      Swal.fire({
+        icon: 'error',
+        title: 'Error al crear cupón',
+        text: 'Es posible que el código promocional ya exista.'
+      });
     }
   }
 
   async borrarCupon(id: string): Promise<void> {
-    if (!confirm('¿Deseas eliminar este cupón promocional?')) return;
+    const confirmacion = await Swal.fire({
+      title: '¿Eliminar cupón?',
+      text: '¿Deseas eliminar este cupón promocional?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    });
+
+    if (!confirmacion.isConfirmed) return;
 
     try {
       const { error } = await this.supabaseService.client
@@ -98,6 +122,13 @@ export class CuponesComponent implements OnInit {
 
       if (error) throw error;
       await this.cargarCupones();
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Cupón eliminado',
+        timer: 1500,
+        showConfirmButton: false
+      });
     } catch (error) {
       console.error('Error al borrar el cupón:', error);
     }
@@ -121,7 +152,11 @@ export class CuponesComponent implements OnInit {
     if (!this.esAdmin()) return;
 
     if (!this.nombreDescuento.trim() || this.edadMinima <= 0 || this.porcentajeDescuentoEdad <= 0 || this.topeMaximo <= 0) {
-      alert('Ingresá valores válidos para configurar la regla.');
+      Swal.fire({
+        icon: 'warning',
+        title: 'Datos requeridos',
+        text: 'Ingresá valores válidos para configurar la regla.'
+      });
       return;
     }
 
@@ -137,6 +172,12 @@ export class CuponesComponent implements OnInit {
 
       if (error) throw error;
 
+      Swal.fire({
+        icon: 'success',
+        title: '¡Regla guardada!',
+        text: 'La regla de descuento por edad fue creada con éxito.'
+      });
+
       this.nombreDescuento = '';
       this.edadMinima = 65;
       this.porcentajeDescuentoEdad = 10;
@@ -149,7 +190,16 @@ export class CuponesComponent implements OnInit {
   }
 
   async borrarDescuento(id: string): Promise<void> {
-    if (!confirm('¿Deseas eliminar esta regla de descuento?')) return;
+    const confirmacion = await Swal.fire({
+      title: '¿Eliminar regla?',
+      text: '¿Deseas eliminar esta regla de descuento?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    });
+
+    if (!confirmacion.isConfirmed) return;
 
     try {
       const { error } = await this.supabaseService.client
@@ -159,6 +209,13 @@ export class CuponesComponent implements OnInit {
 
       if (error) throw error;
       await this.cargarDescuentos();
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Regla eliminada',
+        timer: 1500,
+        showConfirmButton: false
+      });
     } catch (error) {
       console.error('Error al borrar regla de descuento:', error);
     }

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SupabaseService } from '../../services/supabase';
 import { Usuario } from '../../models/usuario';
+import Swal from 'sweetalert2';
 
 interface UsuarioEdicion extends Usuario {
   rolOriginal?: 'administrador' | 'empleado' | 'cliente';
@@ -79,11 +80,21 @@ export class GestionUsuariosComponent implements OnInit {
         .eq('id', usuario.id);
 
       if (error) {
-        alert('Error al guardar el rol en Supabase: ' + error.message);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error al actualizar',
+          text: error.message
+        });
       } else {
         usuario.rolOriginal = usuario.rol;
         usuario.modificado = false;
-        alert('Rol actualizado exitosamente.');
+        Swal.fire({
+          icon: 'success',
+          title: 'Rol actualizado',
+          text: `El rol de @${usuario.usuario} ahora es ${usuario.rol}.`,
+          timer: 1500,
+          showConfirmButton: false
+        });
       }
     } finally {
       this.procesandoId.set(null);
@@ -93,11 +104,16 @@ export class GestionUsuariosComponent implements OnInit {
   async eliminarPerfil(usuario: UsuarioEdicion): Promise<void> {
     if (!usuario.id) return;
 
-    const confirmacion = confirm(
-      `¿Desea eliminar el perfil de ${usuario.nombre ?? ''} ${usuario.apellido ?? ''} (@${usuario.usuario})?`
-    );
+    const confirmacion = await Swal.fire({
+      title: '¿Eliminar perfil?',
+      text: `¿Desea eliminar el perfil de ${usuario.nombre ?? ''} ${usuario.apellido ?? ''} (@${usuario.usuario})?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    });
 
-    if (!confirmacion) return;
+    if (!confirmacion.isConfirmed) return;
 
     this.procesandoId.set(usuario.id);
     try {
@@ -107,9 +123,19 @@ export class GestionUsuariosComponent implements OnInit {
         .eq('id', usuario.id);
 
       if (error) {
-        alert('Error al borrar el perfil: ' + error.message);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error al eliminar',
+          text: error.message
+        });
       } else {
         this.usuarios.set(this.usuarios().filter(u => u.id !== usuario.id));
+        Swal.fire({
+          icon: 'success',
+          title: 'Perfil eliminado',
+          timer: 1500,
+          showConfirmButton: false
+        });
       }
     } finally {
       this.procesandoId.set(null);

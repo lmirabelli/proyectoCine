@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ZXingScannerModule } from '@zxing/ngx-scanner';
 import { SupabaseService } from '../../services/supabase';
 import { Comprobante } from '../../models/reserva';
+import Swal from 'sweetalert2';
 
 
 
@@ -76,7 +77,11 @@ export class DespachoCandyComponent {
     if (!comp) return;
 
     if (comp.estado === 'ENTREGADO') {
-      alert('Este comprobante ya fue despachado previamente.');
+      Swal.fire({
+        icon: 'info',
+        title: 'Ya despachado',
+        text: 'Este comprobante ya fue despachado previamente.'
+      });
       return;
     }
 

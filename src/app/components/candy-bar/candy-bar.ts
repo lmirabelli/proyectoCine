@@ -6,6 +6,7 @@ import { PdfService } from '../../services/pdf';
 import { ComprobanteReserva, ReservaEntradasCache } from '../../models/reserva';
 import { ItemCarrito, ProductoCandy } from '../../models/candy';
 import { Router } from '@angular/router';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-candy-bar',
@@ -259,7 +260,11 @@ export class CandyBarComponent implements OnInit {
   async pagarConPuntos(): Promise<void> {
     const usuarioSesion = this.supabase.usuarioActual();
     if (!usuarioSesion || !usuarioSesion.id) {
-      alert('Debes estar autenticado para abonar con puntos.');
+      Swal.fire({
+        icon: 'warning',
+        title: 'Autenticación requerida',
+        text: 'Debes estar autenticado para abonar con puntos.'
+      });
       return;
     }
 
@@ -267,12 +272,24 @@ export class CandyBarComponent implements OnInit {
     const puntosActuales = await this.supabase.obtenerPuntosUsuario();
 
     if (puntosActuales < puntosNecesarios) {
-      alert(`Puntos insuficientes. Necesitás ${puntosNecesarios} pts y tenés ${puntosActuales} pts.`);
+      Swal.fire({
+        icon: 'error',
+        title: 'Puntos insuficientes',
+        text: `Necesitás ${puntosNecesarios} pts y tenés ${puntosActuales} pts.`
+      });
       return;
     }
 
-    const confirmacion = confirm(`¿Confirmás el pago utilizando ${puntosNecesarios} puntos?`);
-    if (!confirmacion) return;
+    const confirmacion = await Swal.fire({
+      title: '¿Confirmar pago con puntos?',
+      text: `¿Confirmás el pago utilizando ${puntosNecesarios} puntos?`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, abonar',
+      cancelButtonText: 'Cancelar'
+    });
+
+    if (!confirmacion.isConfirmed) return;
 
     this.procesando.set(true);
     this.mensajeExito.set(null);
@@ -305,6 +322,12 @@ export class CandyBarComponent implements OnInit {
         'PAGADO_PUNTOS'
       );
 
+      Swal.fire({
+        icon: 'success',
+        title: '¡Pago Exitoso!',
+        text: `Se abonaron ${puntosNecesarios} pts correctamente. Tu ticket PDF con QR ha sido generado.`
+      });
+
       this.mensajeExito.set(`¡Pago realizado con éxito abonando ${puntosNecesarios} pts! Tu ticket PDF con QR ha sido generado.`);
 
       setTimeout(() => {
@@ -313,7 +336,11 @@ export class CandyBarComponent implements OnInit {
 
     } catch (err) {
       console.error('Error al procesar el pago con puntos:', err);
-      alert('Ocurrió un error al descontar los puntos y generar el comprobante.');
+      Swal.fire({
+        icon: 'error',
+        title: 'Error de transacción',
+        text: 'Ocurrió un error al descontar los puntos y generar el comprobante.'
+      });
     } finally {
       this.procesando.set(false);
     }
@@ -355,6 +382,12 @@ export class CandyBarComponent implements OnInit {
         this.supabase.puntosActuales.set(nuevosPuntos);
       }
 
+      Swal.fire({
+        icon: 'success',
+        title: '¡Compra Efectuada!',
+        text: 'Tu ticket PDF con el código QR ha sido descargado.'
+      });
+
       this.mensajeExito.set('¡Compra efectuada exitosamente! Tu ticket PDF con el código QR ha sido descargado.');
 
       setTimeout(() => {
@@ -363,7 +396,11 @@ export class CandyBarComponent implements OnInit {
 
     } catch (err) {
       console.error('Error al procesar la compra:', err);
-      alert('Ocurrió un problema al procesar el pago.');
+      Swal.fire({
+        icon: 'error',
+        title: 'Error de pago',
+        text: 'Ocurrió un problema al procesar el pago.'
+      });
     } finally {
       this.procesando.set(false);
     }

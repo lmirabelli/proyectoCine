@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { SupabaseService } from '../../services/supabase';
 import { GraficosComponent } from '../graficos/graficos';
 import { DiaSelector, VentaPelicula, VentaProducto } from '../../models/facturacion';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-facturacion',
@@ -48,7 +49,11 @@ export class Facturacion implements OnInit {
   async ngOnInit(): Promise<void> {
     const esAdministrador = await this.supabase.esAdministrador();
     if (!esAdministrador) {
-      alert('Acceso denegado. Solo administradores pueden ver la facturación.');
+      Swal.fire({
+        icon: 'error',
+        title: 'Acceso Denegado',
+        text: 'Solo administradores pueden ver la facturación.'
+      });
       this.router.navigate(['/']);
       return;
     }

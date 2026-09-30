@@ -6,6 +6,7 @@ import { SupabaseService } from '../../services/supabase';
 import { FuncionPelicula } from '../../models/funcion';
 import { DisposicionButacasComponent } from '../disposicion-butacas/disposicion-butacas';
 import { Butaca } from '../../models/butaca';
+import Swal from 'sweetalert2';
 
 export interface DiaOpcion {
     fechaStr: string;
@@ -292,13 +293,21 @@ export class ProcesoCompraComponent implements OnInit {
         const funcion = this.funcionObjeto();
 
         if (!funcion) {
-            alert('Por favor seleccioná una función disponible.');
+            Swal.fire({
+                icon: 'warning',
+                title: 'Selección requerida',
+                text: 'Por favor seleccioná una función disponible.'
+            });
             return;
         }
 
         const asientosElegidos = this.butacasSeleccionadas().map(b => b.id);
         if (asientosElegidos.length !== this.cantidadEntradas()) {
-            alert(`Debes seleccionar exactamente ${this.cantidadEntradas()} asiento(s) para continuar.`);
+            Swal.fire({
+                icon: 'warning',
+                title: 'Selección de butacas incompleta',
+                text: `Debes seleccionar exactamente ${this.cantidadEntradas()} asiento(s) para continuar.`
+            });
             return;
         }
 

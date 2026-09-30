@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { SupabaseService } from '../../services/supabase';
+import Swal from 'sweetalert2';
 
 @Component({
     selector: 'app-pelicula-id',
@@ -67,12 +68,20 @@ export class PeliculaIdComponent implements OnInit {
         const usuarioLogueado = this.usuario();
 
         if (!usuarioLogueado || !usuarioLogueado.id) {
-            alert('Debés iniciar sesión para poder dejar una reseña.');
+            Swal.fire({
+                icon: 'warning',
+                title: 'Inicio de sesión requerido',
+                text: 'Debés iniciar sesión para poder dejar una reseña.'
+            });
             return;
         }
 
         if (this.estrellasSeleccionadas() === 0) {
-            alert('Por favor, seleccioná una puntuación de 1 a 10 estrellas.');
+            Swal.fire({
+                icon: 'info',
+                title: 'Puntuación requerida',
+                text: 'Por favor, seleccioná una puntuación de 1 a 10 estrellas.'
+            });
             return;
         }
 
@@ -115,10 +124,20 @@ export class PeliculaIdComponent implements OnInit {
             this.estrellasSeleccionadas.set(0);
             await this.cargarPeliculaYResenas();
 
-            alert('¡Reseña publicada con éxito!');
+            Swal.fire({
+                icon: 'success',
+                title: '¡Reseña publicada!',
+                text: 'Muchas gracias por compartir tu opinión sobre la película.',
+                timer: 2000,
+                showConfirmButton: false
+            });
         } catch (error: any) {
             console.error('Error al guardar la reseña:', error);
-            alert('Ocurrió un error al guardar la reseña: ' + (error.message || error));
+            Swal.fire({
+                icon: 'error',
+                title: 'Error al publicar',
+                text: 'Ocurrió un error al guardar la reseña: ' + (error.message || error)
+            });
         } finally {
             this.enviando.set(false);
         }
